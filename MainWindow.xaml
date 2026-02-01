@@ -1,0 +1,193 @@
+﻿<Window
+    x:Class="Subscription_Manager.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="SubTrack"
+    Height="450"
+    Width="800"
+    Background="#FFD9D9D9">
+
+    <Grid>
+        <!-- ROWS -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- COLUMNS -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT PANEL -->
+        <Border Grid.Row="0" Grid.Column="0" Background="#FFF15A21">
+            <StackPanel Margin="16">
+
+                <TextBlock
+                    Text="SubTrack"
+                    FontSize="24"
+                    FontWeight="Bold"
+                    Foreground="White"
+                    Margin="0,0,0,24"
+                    FontFamily="Calibri"/>
+
+                <!-- TOTAL / CALCULATOR -->
+                <StackPanel Margin="0,0,0,20"
+                            Visibility="{Binding CalculatorVisibility}">
+
+                    <TextBlock
+                        Text="{Binding TotalLabel}"
+                        Foreground="White"
+                        FontWeight="Bold"/>
+
+                    <TextBlock
+                        Text="{Binding DisplayedTotal, StringFormat=C}"
+                        FontSize="22"
+                        FontWeight="Bold"
+                        Foreground="White"
+                        Margin="0,4,0,0"
+                        FontFamily="Consolas"/>
+
+
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton
+                            Content="Monthly"
+                            IsChecked="True"
+                            Checked="Monthly_Checked"
+                            Foreground="White"
+                            FontFamily="Corbel"/>
+
+                        <RadioButton
+                            Content="Yearly"
+                            Margin="12,0,0,0"
+                            Checked="Yearly_Checked"
+                            Foreground="White"
+                            FontFamily="Corbel"/>
+                    </StackPanel>
+                </StackPanel>
+                    <TextBlock
+                        Margin="0,12,0,0"
+                        Foreground="White"
+                        FontSize="13"
+                        Opacity="0.85"
+                        TextAlignment="Center"
+                        Text="{Binding SubscriptionCountText}" />
+
+                <Button
+                    Content="Active Subscriptions"
+                    Margin="0,8,0,0"
+                    FontFamily="Cooper Black"
+                    Click="ShowActive_Click"
+                    Height="24"/>
+
+                <Button
+                    Content="Disabled Subscriptions"
+                    Margin="0,8,0,0"
+                    FontFamily="Cooper Black"
+                    Click="ShowDisabled_Click"
+                    Height="24"/>
+            </StackPanel>
+        </Border>
+
+        <!-- RIGHT PANEL -->
+        <Grid Grid.Row="0" Grid.Column="1" Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <StackPanel Orientation="Horizontal">
+                <TextBlock
+                    Text="{Binding SubscriptionsHeader}"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    FontFamily="Cooper Black"/>
+
+                <Button
+                    Content="Add"
+                    Width="80"
+                    Margin="16,0,0,0"
+                    Click="Add_Click"
+                    FontFamily="Cooper Black"
+                    Background="#FFF15A21"
+                    Foreground="White"/>
+            </StackPanel>
+
+            <!-- LIST -->
+            <Border
+                Grid.Row="1"
+                Margin="0,16,0,0"
+                BorderBrush="#CCCCCC"
+                BorderThickness="1"
+                CornerRadius="6">
+
+                <Grid>
+                    <ListView
+                        ItemsSource="{Binding CurrentSubscriptions}"
+                        HorizontalContentAlignment="Stretch"
+                        MouseDoubleClick="Subscriptions_DoubleClick">
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="120"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                        <TextBlock
+                                            Text="{Binding BillingCycle}"
+                                            FontSize="12"
+                                            Foreground="#777777"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1"
+                                                HorizontalAlignment="Right"
+                                                Margin="10,0,0,0">
+                                        <TextBlock
+                                            Text="{Binding Cost, StringFormat=C}"
+                                            FontWeight="Bold"
+                                            HorizontalAlignment="Right"/>
+
+                                        <TextBlock
+                                            Text="{Binding DaysUntilBilling, StringFormat={}{0} days}"
+                                            FontSize="11"
+                                            Foreground="#777777"
+                                            HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <TextBlock
+                        Text="{Binding EmptyMessage}"
+                        Visibility="{Binding EmptyMessageVisibility}"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="Gray"
+                        Opacity="0.7"
+                        FontStyle="Italic"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        TextAlignment="Center"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- VERSION (BOTTOM CENTER) -->
+        <TextBlock
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Text="{Binding AppVersion}"
+            FontSize="10"
+            Foreground="#666"
+            Opacity="0.45"
+            HorizontalAlignment="Center"
+            Margin="0,2,0,8"/>
+    </Grid>
+</Window>

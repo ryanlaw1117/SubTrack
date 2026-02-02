@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Windows.Media;
+using System.Text.Json.Serialization;
 
 namespace Subscription_Manager.Models
 {
@@ -12,17 +14,26 @@ namespace Subscription_Manager.Models
         private DateTime _firstBillingDate;
         private DateTime _nextBillingDate;
         private string _description = string.Empty;
+        private string? _accentColor;
 
         public string Name
         {
             get => _name;
-            set { _name = value; OnPropertyChanged(nameof(Name)); }
+            set
+            {
+                _name = value;
+                OnPropertyChanged(nameof(Name));
+            }
         }
 
         public decimal Cost
         {
             get => _cost;
-            set { _cost = value; OnPropertyChanged(nameof(Cost)); }
+            set
+            {
+                _cost = value;
+                OnPropertyChanged(nameof(Cost));
+            }
         }
 
         public bool IsYearly
@@ -41,8 +52,31 @@ namespace Subscription_Manager.Models
         public bool IsActive
         {
             get => _isActive;
-            set { _isActive = value; OnPropertyChanged(nameof(IsActive)); }
+            set
+            {
+                _isActive = value;
+                OnPropertyChanged(nameof(IsActive));
+            }
         }
+
+        public string? AccentColor
+        {
+            get => _accentColor;
+            set
+            {
+                _accentColor = value;
+                OnPropertyChanged(nameof(AccentColor));
+                OnPropertyChanged(nameof(AccentBrush));
+            }
+        }
+
+        [JsonIgnore]
+        public Brush? AccentBrush =>
+            string.IsNullOrWhiteSpace(AccentColor)
+                ? null
+                : new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString(AccentColor));
+
 
         public DateTime FirstBillingDate
         {
@@ -66,6 +100,7 @@ namespace Subscription_Manager.Models
                 OnPropertyChanged(nameof(DaysUntilBilling));
             }
         }
+
         public string DaysUntilBillingText
         {
             get
@@ -80,7 +115,11 @@ namespace Subscription_Manager.Models
         public string Description
         {
             get => _description;
-            set { _description = value; OnPropertyChanged(nameof(Description)); }
+            set
+            {
+                _description = value;
+                OnPropertyChanged(nameof(Description));
+            }
         }
 
         public string BillingCycle => IsYearly ? "Yearly" : "Monthly";

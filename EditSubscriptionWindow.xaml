@@ -40,16 +40,19 @@
                 TextChanged="InputChanged"/>
 
 
-            <TextBlock Text="Color (FUTURE UPDATE)" Grid.Row="4" FontFamily="Cooper Black"/>
+            <TextBlock Text="Color" Grid.Row="4" FontFamily="Cooper Black"/>
             <Button x:Name="ColorButton"
-                    Grid.Row="5"
-                    Width="120"
-                    Content="Select Color"
-                    Margin="0,5,0,15"
-                    BorderBrush="#FFED2323"
-                    Foreground="White"
-                    Background="#FF822525"
-                    FontFamily="Cooper Black"/>
+                Grid.Row="5"
+                Width="120"
+                Content="Select Color"
+                Margin="0,5,0,0"
+                Click="ColorButton_Click"
+                BorderBrush="#FFED2323"
+                Foreground="White"
+                Background="#FF822525"
+                FontFamily="Cooper Black"/>
+
+
 
             <CheckBox x:Name="ActiveCheck"
                       Grid.Row="6"
@@ -82,7 +85,7 @@
                              FontWeight="Bold"/>
             </StackPanel>
 
-            <TextBlock Text="First Billing Cycle Date *" Grid.Row="2" FontFamily="Cooper Black"/>
+            <TextBlock Text="First Billing Date *" Grid.Row="2" FontFamily="Cooper Black"/>
             <DatePicker x:Name="BillingDatePicker"
                     Grid.Row="3"
                     Margin="0,5,0,15"

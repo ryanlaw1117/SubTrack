@@ -1,6 +1,7 @@
 ﻿using Subscription_Manager.Models;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Linq;
 
 namespace Subscription_Manager
 {

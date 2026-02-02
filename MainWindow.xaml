@@ -7,14 +7,70 @@
     Width="800"
     Background="#FFD9D9D9">
 
+    <Window.Resources>
+        <DataTemplate x:Key="SubscriptionRowTemplate">
+            <Border
+                x:Name="RowRoot"
+                BorderThickness="6,0,0,0"
+                BorderBrush="{Binding AccentBrush}"
+                CornerRadius="4,0,0,4">
+                
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock
+                            Text="{Binding Name}"
+                            FontWeight="Bold"/>
+
+                        <TextBlock
+                            Text="{Binding BillingCycle}"
+                            FontSize="12"
+                            Foreground="#777777"/>
+                    </StackPanel>
+
+                    <StackPanel
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        Margin="10,0,0,0">
+
+                        <TextBlock
+                    Text="{Binding Cost, StringFormat=C}"
+                    FontWeight="Bold"
+                    HorizontalAlignment="Right"/>
+
+                        <TextBlock
+                            Text="{Binding DaysUntilBillingText}"
+                            FontSize="11"
+                            Foreground="#777777"
+                            HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <DataTemplate.Triggers>
+
+                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                    <Setter TargetName="RowRoot" Property="Opacity" Value="0.55"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding AccentBrush}" Value="{x:Null}">
+                    <Setter TargetName="RowRoot" Property="BorderThickness" Value="0"/>
+                </DataTrigger>
+
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+
     <Grid>
-        <!-- ROWS -->
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- COLUMNS -->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220"/>
             <ColumnDefinition Width="*"/>
@@ -32,9 +88,9 @@
                     Margin="0,0,0,24"
                     FontFamily="Calibri"/>
 
-                <!-- TOTAL / CALCULATOR -->
-                <StackPanel Margin="0,0,0,20"
-                            Visibility="{Binding CalculatorVisibility}">
+                <StackPanel
+                    Margin="0,0,0,20"
+                    Visibility="{Binding CalculatorVisibility}">
 
                     <TextBlock
                         Text="{Binding TotalLabel}"
@@ -48,7 +104,6 @@
                         Foreground="White"
                         Margin="0,4,0,0"
                         FontFamily="Consolas"/>
-
 
                     <StackPanel Orientation="Horizontal">
                         <RadioButton
@@ -66,13 +121,14 @@
                             FontFamily="Corbel"/>
                     </StackPanel>
                 </StackPanel>
-                    <TextBlock
-                        Margin="0,12,0,0"
-                        Foreground="White"
-                        FontSize="13"
-                        Opacity="0.85"
-                        TextAlignment="Center"
-                        Text="{Binding SubscriptionCountText}" />
+
+                <TextBlock
+                    Margin="0,12,0,0"
+                    Foreground="White"
+                    FontSize="13"
+                    Opacity="0.85"
+                    TextAlignment="Center"
+                    Text="{Binding SubscriptionCountText}" />
 
                 <Button
                     Content="Active Subscriptions"
@@ -97,25 +153,41 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- HEADER -->
-            <StackPanel Orientation="Horizontal">
-                <TextBlock
-                    Text="{Binding SubscriptionsHeader}"
-                    FontSize="20"
-                    FontWeight="Bold"
-                    FontFamily="Cooper Black"/>
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <Button
-                    Content="Add"
-                    Width="80"
-                    Margin="16,0,0,0"
-                    Click="Add_Click"
-                    FontFamily="Cooper Black"
-                    Background="#FFF15A21"
-                    Foreground="White"/>
+                    <TextBlock
+                        Text="{Binding SubscriptionsHeader}"
+                        FontSize="20"
+                        FontWeight="Bold"
+                        FontFamily="Cooper Black"
+                        VerticalAlignment="Center"/>
+
+                    <Button
+                        Grid.Column="1"
+                        Content="Add"
+                        Width="80"
+                        Margin="16,0,0,0"
+                        Click="Add_Click"
+                        FontFamily="Cooper Black"
+                        Background="#FFF15A21"
+                        Foreground="White"/>
+                </Grid>
+
+                <TextBox
+                    Margin="0,10,0,0"
+                    Height="28"
+                    FontSize="13"
+                    Padding="10,4"
+                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                    ToolTip="Search by name or description"
+                />
             </StackPanel>
 
-            <!-- LIST -->
             <Border
                 Grid.Row="1"
                 Margin="0,16,0,0"
@@ -125,9 +197,10 @@
 
                 <Grid>
                     <ListView
-    ItemsSource="{Binding CurrentSubscriptions}"
-    HorizontalContentAlignment="Stretch"
-    MouseDoubleClick="Subscriptions_DoubleClick">
+                        ItemsSource="{Binding CurrentSubscriptions}"
+                        ItemTemplate="{StaticResource SubscriptionRowTemplate}"
+                        HorizontalContentAlignment="Stretch"
+                        MouseDoubleClick="Subscriptions_DoubleClick">
 
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -150,40 +223,6 @@
                                 </Style.Triggers>
                             </Style>
                         </ListView.ItemContainerStyle>
-
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="120"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                                        <TextBlock
-                                            Text="{Binding BillingCycle}"
-                                            FontSize="12"
-                                            Foreground="#777777"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="1"
-                                                HorizontalAlignment="Right"
-                                                Margin="10,0,0,0">
-                                        <TextBlock
-                                            Text="{Binding Cost, StringFormat=C}"
-                                            FontWeight="Bold"
-                                            HorizontalAlignment="Right"/>
-
-                                        <TextBlock
-                                            Text="{Binding DaysUntilBillingText}"
-                                            FontSize="11"
-                                            Foreground="#777777"
-                                            HorizontalAlignment="Right"/>
-                                    </StackPanel>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
                     </ListView>
 
                     <TextBlock
@@ -201,7 +240,6 @@
             </Border>
         </Grid>
 
-        <!-- VERSION (BOTTOM CENTER) -->
         <TextBlock
             Grid.Row="1"
             Grid.ColumnSpan="2"

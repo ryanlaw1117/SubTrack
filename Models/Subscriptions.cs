@@ -66,6 +66,16 @@ namespace Subscription_Manager.Models
                 OnPropertyChanged(nameof(DaysUntilBilling));
             }
         }
+        public string DaysUntilBillingText
+        {
+            get
+            {
+                if (DaysUntilBilling == 1)
+                    return "1 day";
+
+                return $"{DaysUntilBilling} days";
+            }
+        }
 
         public string Description
         {

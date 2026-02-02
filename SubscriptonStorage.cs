@@ -47,7 +47,6 @@ namespace Subscription_Manager
             }
             catch
             {
-                // intentionally silent for now
             }
         }
     }

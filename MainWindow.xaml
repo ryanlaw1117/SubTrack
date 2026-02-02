@@ -125,9 +125,31 @@
 
                 <Grid>
                     <ListView
-                        ItemsSource="{Binding CurrentSubscriptions}"
-                        HorizontalContentAlignment="Stretch"
-                        MouseDoubleClick="Subscriptions_DoubleClick">
+    ItemsSource="{Binding CurrentSubscriptions}"
+    HorizontalContentAlignment="Stretch"
+    MouseDoubleClick="Subscriptions_DoubleClick">
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="Padding" Value="0"/>
+
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#11000000"/>
+                                        <Setter Property="BorderBrush" Value="#22000000"/>
+                                    </Trigger>
+
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#2AAEDCFF"/>
+                                        <Setter Property="BorderBrush" Value="#FF7CBCE6"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
 
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -154,7 +176,7 @@
                                             HorizontalAlignment="Right"/>
 
                                         <TextBlock
-                                            Text="{Binding DaysUntilBilling, StringFormat={}{0} days}"
+                                            Text="{Binding DaysUntilBillingText}"
                                             FontSize="11"
                                             Foreground="#777777"
                                             HorizontalAlignment="Right"/>

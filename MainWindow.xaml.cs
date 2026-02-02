@@ -6,6 +6,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Data;
+using System.Collections.Generic;
 
 namespace Subscription_Manager
 {
@@ -15,6 +17,7 @@ namespace Subscription_Manager
         private bool _showDisabled;
         private decimal _yearlyTotal;
         private decimal _monthlyTotal;
+        private string _searchText = "";
 
         public string EmptyMessage =>
             ShowDisabled
@@ -22,9 +25,11 @@ namespace Subscription_Manager
                 : "You have no Active Subscriptions";
 
         public Visibility EmptyMessageVisibility =>
-            CurrentSubscriptions.Any()
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+            CurrentSubscriptions != null && CurrentSubscriptions.Any()
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+
+
 
         public bool IsYearly
         {
@@ -39,6 +44,33 @@ namespace Subscription_Manager
                 OnPropertyChanged(nameof(TotalLabel));
                 OnPropertyChanged(nameof(DisplayedTotal));
             }
+        }
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText == value) return;
+                _searchText = value ?? "";
+                OnPropertyChanged(nameof(SearchText));
+                OnPropertyChanged(nameof(CurrentSubscriptions));
+                OnPropertyChanged(nameof(SubscriptionCount));
+                OnPropertyChanged(nameof(SubscriptionCountText));
+                OnPropertyChanged(nameof(EmptyMessageVisibility));
+            }
+        }
+        private bool MatchesSearch(Subscription s)
+        {
+            if (s == null) return false;
+
+            var q = (SearchText ?? "").Trim();
+            if (q.Length == 0) return true;
+
+            var name = s.Name ?? "";
+            var desc = s.Description ?? "";
+
+            return name.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || desc.Contains(q, StringComparison.OrdinalIgnoreCase);
         }
 
         private void RecalculateTotals()
@@ -57,6 +89,29 @@ namespace Subscription_Manager
             OnPropertyChanged(nameof(MonthlyTotal));
             OnPropertyChanged(nameof(DisplayedTotal));
         }
+        private void SortSubscriptions()
+        {
+            if (Subscriptions == null || Subscriptions.Count < 2)
+                return;
+
+            var sorted = Subscriptions
+                .OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            Subscriptions.Clear();
+
+            foreach (var sub in sorted)
+                Subscriptions.Add(sub);
+        }
+        private void ApplyDefaultSorting()
+        {
+            var view = CollectionViewSource.GetDefaultView(CurrentSubscriptions);
+            if (view == null) return;
+
+            view.SortDescriptions.Clear();
+            view.SortDescriptions.Add(new SortDescription(nameof(Models.Subscription.Name), ListSortDirection.Ascending));
+            view.Refresh();
+        }
 
         public decimal YearlyTotal => _yearlyTotal;
         public decimal MonthlyTotal => _monthlyTotal;
@@ -71,7 +126,8 @@ namespace Subscription_Manager
                 if (_showDisabled == value) return;
 
                 _showDisabled = value;
-
+                _searchText = "";
+                OnPropertyChanged(nameof(SearchText));
                 OnPropertyChanged(nameof(CurrentSubscriptions));
                 OnPropertyChanged(nameof(SubscriptionCount));
                 OnPropertyChanged(nameof(SubscriptionCountText));
@@ -93,11 +149,17 @@ namespace Subscription_Manager
 
         public ObservableCollection<Subscription> Subscriptions { get; set; }
 
-        public IEnumerable<Subscription> ActiveSubscriptions =>
-            Subscriptions?.Where(s => s.IsActive) ?? Enumerable.Empty<Subscription>();
+        public IEnumerable<Subscription> ActiveSubscriptions => Subscriptions?
+    .Where(s => s.IsActive)
+    .Where(MatchesSearch)
+    .OrderBy(s => s.Name?.Trim(), StringComparer.OrdinalIgnoreCase)
+    ?? Enumerable.Empty<Subscription>();
 
-        public IEnumerable<Subscription> DisabledSubscriptions =>
-            Subscriptions?.Where(s => !s.IsActive) ?? Enumerable.Empty<Subscription>();
+        public IEnumerable<Subscription> DisabledSubscriptions => Subscriptions?
+            .Where(s => !s.IsActive)
+            .Where(MatchesSearch)
+            .OrderBy(s => s.Name?.Trim(), StringComparer.OrdinalIgnoreCase)
+            ?? Enumerable.Empty<Subscription>();
 
         public IEnumerable<Subscription> CurrentSubscriptions =>
             ShowDisabled ? DisabledSubscriptions : ActiveSubscriptions;

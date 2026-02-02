@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Subscription_Manager.Models;
 
 namespace Subscription_Manager
@@ -11,6 +12,7 @@ namespace Subscription_Manager
     {
         private readonly Subscription _subscription;
         private readonly ObservableCollection<Subscription> _subscriptions;
+        private string? _selectedAccentColor;
 
         public EditSubscriptionWindow(Subscription subscription, ObservableCollection<Subscription> subscriptions)
         {
@@ -22,17 +24,46 @@ namespace Subscription_Manager
             NameBox.Text = _subscription.Name;
             CostBox.Text = _subscription.Cost.ToString("0.##");
             DescriptionBox.Text = _subscription.Description ?? "";
-            BillingDatePicker.SelectedDate = _subscription.FirstBillingDate == DateTime.MinValue ? DateTime.Today : _subscription.FirstBillingDate;
+
+            BillingDatePicker.SelectedDate =
+                _subscription.FirstBillingDate == DateTime.MinValue
+                    ? DateTime.Today
+                    : _subscription.FirstBillingDate;
 
             MonthlyRadio.IsChecked = !_subscription.IsYearly;
             YearlyRadio.IsChecked = _subscription.IsYearly;
-
             ActiveCheck.IsChecked = _subscription.IsActive;
+
+            _selectedAccentColor = _subscription.AccentColor;
+
+            if (!string.IsNullOrWhiteSpace(_selectedAccentColor))
+            {
+                var color = (Color)ColorConverter.ConvertFromString(_selectedAccentColor);
+                ColorButton.Background = new SolidColorBrush(color);
+                ColorButton.Foreground = Brushes.White;
+            }
+        }
+
+        private void ColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new System.Windows.Forms.ColorDialog();
+
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var color = Color.FromRgb(
+                    dialog.Color.R,
+                    dialog.Color.G,
+                    dialog.Color.B);
+
+                _selectedAccentColor = color.ToString();
+
+                ColorButton.Background = new SolidColorBrush(color);
+                ColorButton.Foreground = Brushes.White;
+            }
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-
             ErrorText.Visibility = Visibility.Collapsed;
 
             if (string.IsNullOrWhiteSpace(NameBox.Text) ||
@@ -49,24 +80,20 @@ namespace Subscription_Manager
             _subscription.FirstBillingDate = BillingDatePicker.SelectedDate.Value;
             _subscription.Description = DescriptionBox.Text;
             _subscription.IsActive = ActiveCheck.IsChecked == true;
+            _subscription.AccentColor = _selectedAccentColor;
 
             _subscription.UpdateNextBillingDate();
+            SubscriptionStorage.Save(_subscriptions);
 
             Close();
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+        private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var cycle = _subscription.IsYearly ? "per year" : "per month";
-            var savings = _subscription.Cost.ToString("0.00");
-
             var result = MessageBox.Show(
-                $"Are you sure you want to delete this subscription?\nDeleting this will save you ${savings} {cycle}.",
+                "Delete this subscription?",
                 "Confirm Delete",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -75,6 +102,7 @@ namespace Subscription_Manager
                 return;
 
             _subscriptions.Remove(_subscription);
+            SubscriptionStorage.Save(_subscriptions);
             Close();
         }
 
@@ -83,18 +111,9 @@ namespace Subscription_Manager
             e.Handled = !decimal.TryParse(((TextBox)sender).Text + e.Text, out _);
         }
 
-        private void CostBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (CostBox.Text == "")
-                return;
-
-            if (!decimal.TryParse(CostBox.Text, out _))
-                CostBox.Text = CostBox.Text.Remove(CostBox.Text.Length - 1);
-        }
         private void InputChanged(object sender, RoutedEventArgs e)
         {
             ErrorText.Visibility = Visibility.Collapsed;
         }
-
     }
 }

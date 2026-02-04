@@ -10,6 +10,7 @@ SubTrack is a lightweight **WPF desktop application for Windows** that helps you
 <img width="783" height="442" alt="image" src="https://github.com/user-attachments/assets/47ee0e3b-47e0-4ecc-8625-09d1b24daee7" />
 
 - Toggle between **Active** and **Disabled** subscriptions
+<img width="782" height="442" alt="image" src="https://github.com/user-attachments/assets/3b91d628-aab4-4ed5-9591-5b918d3c8dac" />
 <img width="784" height="444" alt="image" src="https://github.com/user-attachments/assets/8d2366c8-4cec-46dd-bf82-ac814641f898" />
 
 - Real-time **search** by subscription name or description

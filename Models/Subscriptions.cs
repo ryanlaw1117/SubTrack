@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Windows.Media;
 using System.Text.Json.Serialization;
+using System.Windows.Media;
 
 namespace Subscription_Manager.Models
 {
@@ -14,26 +14,19 @@ namespace Subscription_Manager.Models
         private DateTime _firstBillingDate;
         private DateTime _nextBillingDate;
         private string _description = string.Empty;
+        private string _category = string.Empty;
         private string? _accentColor;
 
         public string Name
         {
             get => _name;
-            set
-            {
-                _name = value;
-                OnPropertyChanged(nameof(Name));
-            }
+            set { _name = value; OnPropertyChanged(nameof(Name)); }
         }
 
         public decimal Cost
         {
             get => _cost;
-            set
-            {
-                _cost = value;
-                OnPropertyChanged(nameof(Cost));
-            }
+            set { _cost = value; OnPropertyChanged(nameof(Cost)); }
         }
 
         public bool IsYearly
@@ -45,17 +38,52 @@ namespace Subscription_Manager.Models
                 UpdateNextBillingDate();
                 OnPropertyChanged(nameof(IsYearly));
                 OnPropertyChanged(nameof(BillingCycle));
-                OnPropertyChanged(nameof(DaysUntilBilling));
             }
         }
 
         public bool IsActive
         {
             get => _isActive;
+            set { _isActive = value; OnPropertyChanged(nameof(IsActive)); }
+        }
+
+        public DateTime FirstBillingDate
+        {
+            get => _firstBillingDate;
             set
             {
-                _isActive = value;
-                OnPropertyChanged(nameof(IsActive));
+                _firstBillingDate = value;
+                UpdateNextBillingDate();
+                OnPropertyChanged(nameof(FirstBillingDate));
+            }
+        }
+
+        public DateTime NextBillingDate
+        {
+            get => _nextBillingDate;
+            private set
+            {
+                _nextBillingDate = value;
+                OnPropertyChanged(nameof(NextBillingDate));
+                OnPropertyChanged(nameof(DaysUntilBilling));
+                OnPropertyChanged(nameof(DaysUntilBillingText));
+                OnPropertyChanged(nameof(BillingWarningBrush));
+            }
+        }
+
+        public string Description
+        {
+            get => _description;
+            set { _description = value; OnPropertyChanged(nameof(Description)); }
+        }
+
+        public string Category
+        {
+            get => _category;
+            set
+            {
+                _category = value ?? string.Empty;
+                OnPropertyChanged(nameof(Category));
             }
         }
 
@@ -71,81 +99,59 @@ namespace Subscription_Manager.Models
         }
 
         [JsonIgnore]
-        public Brush? AccentBrush =>
+        public Brush AccentBrush =>
             string.IsNullOrWhiteSpace(AccentColor)
-                ? null
-                : new SolidColorBrush(
-                    (Color)ColorConverter.ConvertFromString(AccentColor));
+                ? Brushes.Transparent
+                : new SolidColorBrush((Color)ColorConverter.ConvertFromString(AccentColor));
 
+        public string BillingCycle => IsYearly ? "Yearly" : "Monthly";
 
-        public DateTime FirstBillingDate
-        {
-            get => _firstBillingDate;
-            set
-            {
-                _firstBillingDate = value;
-                UpdateNextBillingDate();
-                OnPropertyChanged(nameof(FirstBillingDate));
-                OnPropertyChanged(nameof(DaysUntilBilling));
-            }
-        }
-
-        public DateTime NextBillingDate
-        {
-            get => _nextBillingDate;
-            private set
-            {
-                _nextBillingDate = value;
-                OnPropertyChanged(nameof(NextBillingDate));
-                OnPropertyChanged(nameof(DaysUntilBilling));
-            }
-        }
+        public int DaysUntilBilling => (NextBillingDate.Date - DateTime.Today).Days;
 
         public string DaysUntilBillingText
         {
             get
             {
-                if (DaysUntilBilling == 1)
-                    return "1 day";
-
+                if (DaysUntilBilling == 0) return "Due today";
+                if (DaysUntilBilling == 1) return "1 day";
+                if (DaysUntilBilling < 0) return $"Overdue {Math.Abs(DaysUntilBilling)} days";
                 return $"{DaysUntilBilling} days";
             }
         }
 
-        public string Description
+        [JsonIgnore]
+        public Brush BillingWarningBrush
         {
-            get => _description;
-            set
+            get
             {
-                _description = value;
-                OnPropertyChanged(nameof(Description));
+                if (DaysUntilBilling <= 0) return Brushes.Red;
+                if (DaysUntilBilling <= 3) return Brushes.Red;
+                if (DaysUntilBilling <= 7) return Brushes.Goldenrod;
+                return Brushes.Gray;
             }
         }
 
-        public string BillingCycle => IsYearly ? "Yearly" : "Monthly";
-
-        public int DaysUntilBilling =>
-            (NextBillingDate.Date - DateTime.Today).Days;
-
         public void UpdateNextBillingDate()
         {
-            var date = FirstBillingDate;
-
-            while (date.Date < DateTime.Today)
+           
+            if (FirstBillingDate == DateTime.MinValue)
             {
-                date = IsYearly
-                    ? date.AddYears(1)
-                    : date.AddMonths(1);
+                NextBillingDate = DateTime.Today;
+                return;
             }
+
+            var date = FirstBillingDate.Date;
+            var today = DateTime.Today;
+
+            
+            while (date < today)
+                date = IsYearly ? date.AddYears(1) : date.AddMonths(1);
 
             NextBillingDate = date;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        protected void OnPropertyChanged(string name) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

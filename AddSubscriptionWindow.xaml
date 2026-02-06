@@ -1,6 +1,7 @@
 ﻿<Window x:Class="Subscription_Manager.AddSubscriptionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Add Subscription"
         Height="480"
         Width="720"
@@ -26,7 +27,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Text="Subscription Name *"
-                       FontFamily="Cooper Black"/>
+                       FontFamily="Cooper Black" FontSize="16"/>
 
             <TextBox x:Name="NameBox"
                 Grid.Row="1"
@@ -35,7 +36,7 @@
 
             <TextBlock Text="Cost ($USD)*"
                        Grid.Row="2"
-                       FontFamily="Cooper Black"/>
+                       FontFamily="Cooper Black" FontSize="16"/>
 
             <TextBox x:Name="CostBox"
                 Grid.Row="3"
@@ -46,7 +47,7 @@
 
             <TextBlock Text="Color"
                        Grid.Row="4"
-                       FontFamily="Cooper Black"/>
+                       FontFamily="Cooper Black" FontSize="16"/>
 
             <Button x:Name="ColorButton"
                 Grid.Row="5"
@@ -58,6 +59,26 @@
                 Background="#FF822525"
                 FontFamily="Cooper Black"
                 Click="ColorButton_Click"/>
+            <TextBlock
+                Text="Category"
+                FontWeight="Bold"
+                Margin="0,36,226,-34" Grid.Row="5"
+                FontFamily="Cooper Black" FontSize="16"/>
+            <ComboBox
+                x:Name="CategoryBox"
+                SelectedValuePath="."
+                Height="28"
+                Margin="10,69,43,-75"
+                IsEditable="False"
+                SelectedValue="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5">
+                <sys:String>Streaming</sys:String>
+                <sys:String>Gaming</sys:String>
+                <sys:String>Utilities</sys:String>
+                <sys:String>Music</sys:String>
+                <sys:String>Productivity</sys:String>
+                <sys:String>Shopping</sys:String>
+                <sys:String>Other</sys:String>
+            </ComboBox>
 
         </Grid>
 
@@ -72,7 +93,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Text="Billing Cycle *"
-                       FontFamily="Cooper Black"/>
+                       FontFamily="Cooper Black" FontSize="16"/>
 
             <StackPanel Grid.Row="1"
                         Orientation="Horizontal"
@@ -94,7 +115,7 @@
 
             <TextBlock Text="First Billing Date *"
                        Grid.Row="2"
-                       FontFamily="Cooper Black"/>
+                       FontFamily="Cooper Black" FontSize="16"/>
 
             <DatePicker x:Name="BillingDatePicker"
                     Grid.Row="3"
@@ -104,15 +125,22 @@
                     SelectedDateChanged="InputChanged"/>
 
 
-            <TextBlock Text="Description"
-                       Grid.Row="4"
-                       FontFamily="Cooper Black"/>
+            <TextBlock
+                Text="Description"
+                Grid.Row="4"
+                Margin="0,10,0,4"
+                FontFamily="Cooper Black"
+                FontSize="16"/>
 
-            <TextBox x:Name="DescriptionBox"
-                     Grid.Row="4"
-                     Height="100"
-                     AcceptsReturn="True"
-                     TextWrapping="Wrap" Margin="0,32,0,186"/>
+            <TextBox
+                x:Name="DescriptionBox"
+                Grid.Row="4"
+                Margin="0,59,0,130"
+                Height="120"
+                AcceptsReturn="True"
+                VerticalScrollBarVisibility="Auto"
+                Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
         </Grid>
 
 

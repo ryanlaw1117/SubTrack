@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,6 +13,8 @@ namespace Subscription_Manager
     {
         private readonly Subscription _subscription;
         private readonly ObservableCollection<Subscription> _subscriptions;
+
+        private Subscription _draft;
         private string? _selectedAccentColor;
 
         public EditSubscriptionWindow(Subscription subscription, ObservableCollection<Subscription> subscriptions)
@@ -21,24 +24,41 @@ namespace Subscription_Manager
             _subscription = subscription;
             _subscriptions = subscriptions;
 
-            NameBox.Text = _subscription.Name;
-            CostBox.Text = _subscription.Cost.ToString("0.##");
-            DescriptionBox.Text = _subscription.Description ?? "";
+            _draft = new Subscription
+            {
+                Name = _subscription.Name,
+                Cost = _subscription.Cost,
+                IsYearly = _subscription.IsYearly,
+                IsActive = _subscription.IsActive,
+                FirstBillingDate = _subscription.FirstBillingDate,
+                Description = _subscription.Description ?? string.Empty,
+                Category = _subscription.Category ?? string.Empty,
+                AccentColor = _subscription.AccentColor ?? string.Empty
+            };
+
+            _selectedAccentColor = _draft.AccentColor;
+
+            DataContext = _draft;
+
+            NameBox.Text = _draft.Name;
+            CostBox.Text = _draft.Cost.ToString("0.##");
+            DescriptionBox.Text = _draft.Description ?? "";
 
             BillingDatePicker.SelectedDate =
-                _subscription.FirstBillingDate == DateTime.MinValue
+                _draft.FirstBillingDate == DateTime.MinValue
                     ? DateTime.Today
-                    : _subscription.FirstBillingDate;
+                    : _draft.FirstBillingDate;
 
-            MonthlyRadio.IsChecked = !_subscription.IsYearly;
-            YearlyRadio.IsChecked = _subscription.IsYearly;
-            ActiveCheck.IsChecked = _subscription.IsActive;
+            MonthlyRadio.IsChecked = !_draft.IsYearly;
+            YearlyRadio.IsChecked = _draft.IsYearly;
+            ActiveCheck.IsChecked = _draft.IsActive;
 
-            _selectedAccentColor = _subscription.AccentColor;
+            if (!string.IsNullOrWhiteSpace(_draft.Category))
+                CategoryBox.SelectedItem = _draft.Category;
 
-            if (!string.IsNullOrWhiteSpace(_selectedAccentColor))
+            if (!string.IsNullOrWhiteSpace(_draft.AccentColor))
             {
-                var color = (Color)ColorConverter.ConvertFromString(_selectedAccentColor);
+                var color = (Color)ColorConverter.ConvertFromString(_draft.AccentColor);
                 ColorButton.Background = new SolidColorBrush(color);
                 ColorButton.Foreground = Brushes.White;
             }
@@ -50,11 +70,7 @@ namespace Subscription_Manager
 
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var color = Color.FromRgb(
-                    dialog.Color.R,
-                    dialog.Color.G,
-                    dialog.Color.B);
-
+                var color = Color.FromRgb(dialog.Color.R, dialog.Color.G, dialog.Color.B);
                 _selectedAccentColor = color.ToString();
 
                 ColorButton.Background = new SolidColorBrush(color);
@@ -74,21 +90,38 @@ namespace Subscription_Manager
                 return;
             }
 
-            _subscription.Name = NameBox.Text;
-            _subscription.Cost = cost;
-            _subscription.IsYearly = YearlyRadio.IsChecked == true;
-            _subscription.FirstBillingDate = BillingDatePicker.SelectedDate.Value;
-            _subscription.Description = DescriptionBox.Text;
-            _subscription.IsActive = ActiveCheck.IsChecked == true;
-            _subscription.AccentColor = _selectedAccentColor;
+            _draft.Name = NameBox.Text.Trim();
+            _draft.Cost = cost;
+            _draft.IsYearly = YearlyRadio.IsChecked == true;
+            _draft.IsActive = ActiveCheck.IsChecked == true;
+            _draft.FirstBillingDate = BillingDatePicker.SelectedDate.Value;
+            _draft.Description = DescriptionBox.Text ?? "";
+            _draft.Category = CategoryBox.SelectedItem as string ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(_selectedAccentColor))
+                _draft.AccentColor = _selectedAccentColor;
+
+            _subscription.Name = _draft.Name;
+            _subscription.Cost = _draft.Cost;
+            _subscription.IsYearly = _draft.IsYearly;
+            _subscription.IsActive = _draft.IsActive;
+            _subscription.FirstBillingDate = _draft.FirstBillingDate;
+            _subscription.Description = _draft.Description;
+            _subscription.Category = _draft.Category;
+            _subscription.AccentColor = _draft.AccentColor;
 
             _subscription.UpdateNextBillingDate();
-            SubscriptionStorage.Save(_subscriptions);
 
+            SubscriptionStorage.Save(_subscriptions);
+            DialogResult = true;
             Close();
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
@@ -103,7 +136,27 @@ namespace Subscription_Manager
 
             _subscriptions.Remove(_subscription);
             SubscriptionStorage.Save(_subscriptions);
+            DialogResult = true;
             Close();
+        }
+
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                Cancel_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.Enter)
+            {
+                Save_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+                return;
+            }
+
+            base.OnPreviewKeyDown(e);
         }
 
         private void CostBox_PreviewTextInput(object sender, TextCompositionEventArgs e)

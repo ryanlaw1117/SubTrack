@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Subscription_Manager.Models;
+using Subscription_Manager;
 
 namespace Subscription_Manager
 {
@@ -12,11 +13,15 @@ namespace Subscription_Manager
     {
         private readonly ObservableCollection<Subscription> _subscriptions;
         private string? _selectedAccentColor;
+        private readonly Subscription _subscription;
 
         public AddSubscriptionWindow(ObservableCollection<Subscription> subscriptions)
         {
             InitializeComponent();
+
             _subscriptions = subscriptions;
+            _subscription = new Subscription();
+            DataContext = _subscription;
         }
 
         private void ColorButton_Click(object sender, RoutedEventArgs e)
@@ -51,21 +56,37 @@ namespace Subscription_Manager
 
             var firstDate = BillingDatePicker.SelectedDate.Value;
 
-            var subscription = new Subscription
-            {
-                Name = NameBox.Text,
-                Cost = cost,
-                FirstBillingDate = firstDate,
-                IsYearly = YearlyRadio.IsChecked == true,
-                Description = DescriptionBox.Text,
-                IsActive = true,
-                AccentColor = _selectedAccentColor
-            };
+            _subscription.Name = NameBox.Text;
+            _subscription.Cost = cost;
+            _subscription.FirstBillingDate = firstDate;
+            _subscription.IsYearly = YearlyRadio.IsChecked == true;
+            _subscription.Description = DescriptionBox.Text;
+            _subscription.IsActive = true;
+            _subscription.AccentColor = string.IsNullOrWhiteSpace(_selectedAccentColor)
+                ? _subscription.AccentColor
+                : _selectedAccentColor;
 
-            _subscriptions.Add(subscription);
+
+            _subscriptions.Add(_subscription);
             SubscriptionStorage.Save(_subscriptions);
             Close();
         }
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Add_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                Close();
+                e.Handled = true;
+            }
+
+            base.OnPreviewKeyDown(e);
+        }
+
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
 

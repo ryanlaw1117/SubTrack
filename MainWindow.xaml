@@ -1,253 +1,297 @@
-﻿<Window
-    x:Class="Subscription_Manager.MainWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="SubTrack"
-    Height="450"
-    Width="800"
-    Background="#FFD9D9D9">
+﻿    <Window
+        x:Class="Subscription_Manager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Subscription_Manager"
+        xmlns:conv="clr-namespace:Subscription_Manager.Converters"
+       
 
-    <Window.Resources>
+        Title="SubTrack"
+        Height="450"
+        Width="800"
+        Background="#FFD9D9D9">
+        <Window.InputBindings>
+        
+            <KeyBinding
+            Key="N"
+            Modifiers="Control"
+            Command="{Binding NewSubscriptionCommand}"/>
+
+        
+            <KeyBinding
+            Key="Escape"
+            Command="{Binding ClearSearchCommand}"/>
+        </Window.InputBindings>
+
+
+        <Window.Resources>
+        <conv:StringToBrushConverter x:Key="StringToBrushConverter"/>
+            
+            
         <DataTemplate x:Key="SubscriptionRowTemplate">
-            <Border
-                x:Name="RowRoot"
-                BorderThickness="6,0,0,0"
-                BorderBrush="{Binding AccentBrush}"
-                CornerRadius="4,0,0,4">
-                
-                <Grid Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="120"/>
-                    </Grid.ColumnDefinitions>
+                <Border
+                    x:Name="RowRoot"
+                    BorderThickness="6,0,0,0"
+                    BorderBrush="{Binding AccentBrush}"
+                    CornerRadius="4"
+                    Padding="8"
+                    Margin="0,0,0,4">
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock
-                            Text="{Binding Name}"
-                            FontWeight="Bold"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="110"/>
+                        </Grid.ColumnDefinitions>
 
-                        <TextBlock
-                            Text="{Binding BillingCycle}"
-                            FontSize="12"
-                            Foreground="#777777"/>
-                    </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
 
-                    <StackPanel
-                        Grid.Column="1"
-                        HorizontalAlignment="Right"
-                        Margin="10,0,0,0">
+                            <TextBlock
+                                Text="{Binding BillingCycle}"
+                                FontSize="12"
+                                Foreground="#777"/>
 
                         <TextBlock
-                    Text="{Binding Cost, StringFormat=C}"
-                    FontWeight="Bold"
-                    HorizontalAlignment="Right"/>
-
-                        <TextBlock
-                            Text="{Binding DaysUntilBillingText}"
+                            Text="{Binding Category}"
                             FontSize="11"
-                            Foreground="#777777"
-                            HorizontalAlignment="Right"/>
+                            FontStyle="Italic"
+                            Foreground="Gray"
+                            Opacity="0.8">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Category}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Category}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+
                     </StackPanel>
-                </Grid>
-            </Border>
 
-            <DataTemplate.Triggers>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                            <TextBlock
+                                Text="{Binding Cost, StringFormat=C}"
+                                FontWeight="Bold"
+                                HorizontalAlignment="Right"/>
 
-                <DataTrigger Binding="{Binding IsActive}" Value="False">
-                    <Setter TargetName="RowRoot" Property="Opacity" Value="0.55"/>
-                </DataTrigger>
+                            <TextBlock
+                                Text="{Binding DaysUntilBillingText}"
+                                FontSize="11"
+                                Foreground="{Binding BillingWarningBrush}"
+                                HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
-                <DataTrigger Binding="{Binding AccentBrush}" Value="{x:Null}">
-                    <Setter TargetName="RowRoot" Property="BorderThickness" Value="0"/>
-                </DataTrigger>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding IsActive}" Value="False">
+                        <Setter TargetName="RowRoot" Property="Opacity" Value="0.55"/>
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+        </Window.Resources>
 
-            </DataTemplate.Triggers>
-        </DataTemplate>
-    </Window.Resources>
+        <Grid PreviewMouseDown="RootGrid_PreviewMouseDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- LEFT PANEL -->
-        <Border Grid.Row="0" Grid.Column="0" Background="#FFF15A21">
-            <StackPanel Margin="16">
-
-                <TextBlock
-                    Text="SubTrack"
-                    FontSize="24"
-                    FontWeight="Bold"
-                    Foreground="White"
-                    Margin="0,0,0,24"
-                    FontFamily="Calibri"/>
-
-                <StackPanel
-                    Margin="0,0,0,20"
-                    Visibility="{Binding CalculatorVisibility}">
-
-                    <TextBlock
-                        Text="{Binding TotalLabel}"
-                        Foreground="White"
-                        FontWeight="Bold"/>
-
-                    <TextBlock
-                        Text="{Binding DisplayedTotal, StringFormat=C}"
-                        FontSize="22"
-                        FontWeight="Bold"
-                        Foreground="White"
-                        Margin="0,4,0,0"
-                        FontFamily="Consolas"/>
-
-                    <StackPanel Orientation="Horizontal">
-                        <RadioButton
-                            Content="Monthly"
-                            IsChecked="True"
-                            Checked="Monthly_Checked"
-                            Foreground="White"
-                            FontFamily="Corbel"/>
-
-                        <RadioButton
-                            Content="Yearly"
-                            Margin="12,0,0,0"
-                            Checked="Yearly_Checked"
-                            Foreground="White"
-                            FontFamily="Corbel"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <TextBlock
-                    Margin="0,12,0,0"
-                    Foreground="White"
-                    FontSize="13"
-                    Opacity="0.85"
-                    TextAlignment="Center"
-                    Text="{Binding SubscriptionCountText}" />
-
-                <Button
-                    Content="Active Subscriptions"
-                    Margin="0,8,0,0"
-                    FontFamily="Cooper Black"
-                    Click="ShowActive_Click"
-                    Height="24"/>
-
-                <Button
-                    Content="Disabled Subscriptions"
-                    Margin="0,8,0,0"
-                    FontFamily="Cooper Black"
-                    Click="ShowDisabled_Click"
-                    Height="24"/>
-            </StackPanel>
-        </Border>
-
-        <!-- RIGHT PANEL -->
-        <Grid Grid.Row="0" Grid.Column="1" Margin="24">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <StackPanel>
-                <Grid>
+            <!-- LEFT PANEL -->
+            <Border Grid.Column="0" Background="#FFF15A21">
+                <StackPanel Margin="16">
+                    <TextBlock
+                        Text="SubTrack"
+                        FontSize="24"
+                        FontWeight="Bold"
+                        Foreground="White"
+                        Margin="0,0,0,24"/>
+
+                    <StackPanel Visibility="{Binding CalculatorVisibility}">
+                        <TextBlock Text="{Binding TotalLabel}" Foreground="White" FontWeight="Bold"/>
+
+                        <TextBlock
+                            Text="{Binding DisplayedTotal, StringFormat=C}"
+                            FontSize="22"
+                            FontWeight="Bold"
+                            Foreground="White"
+                            Margin="0,4,0,8" FontFamily="Consolas"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton
+                                Content="Monthly"
+                                IsChecked="True"
+                                Checked="Monthly_Checked"
+                                Foreground="White"/>
+
+                            <RadioButton
+                                Content="Yearly"
+                                Margin="12,0,0,0"
+                                Checked="Yearly_Checked"
+                                Foreground="White"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock
+                        Margin="0,16,0,0"
+                        Foreground="White"
+                        TextAlignment="Center"
+                        Text="{Binding SubscriptionCountText}"/>
+
+                    <Button
+                        Content="Active Subscriptions"
+                        Margin="0,10,0,0"
+                        Click="ShowActive_Click"
+                        FontFamily="Cooper Black" Height="24"/>
+
+                    <Button
+                        Content="Disabled Subscriptions"
+                        Margin="0,6,0,0"
+                        Click="ShowDisabled_Click"
+                        FontFamily="Cooper Black" Height="27"/>
+                </StackPanel>
+            </Border>
+
+            <!-- RIGHT PANEL -->
+            <Grid Grid.Column="1" Margin="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock
-                        Text="{Binding SubscriptionsHeader}"
-                        FontSize="20"
-                        FontWeight="Bold"
-                        FontFamily="Cooper Black"
-                        VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding SubscriptionsHeader}" FontSize="22" FontWeight="Bold" FontFamily="Cooper Black"/>
 
                     <Button
                         Grid.Column="1"
                         Content="Add"
                         Width="80"
-                        Margin="16,0,0,0"
+                        Margin="12,0,0,0"
                         Click="Add_Click"
                         FontFamily="Cooper Black"
+                        FontSize="16"
                         Background="#FFF15A21"
                         Foreground="White"/>
                 </Grid>
 
-                <TextBox
-                    Margin="0,10,0,0"
-                    Height="28"
-                    FontSize="13"
-                    Padding="10,4"
-                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                    ToolTip="Search by name or description"
-                />
-            </StackPanel>
+                <StackPanel Grid.Row="1" Margin="0,10,0,0">
 
-            <Border
-                Grid.Row="1"
-                Margin="0,16,0,0"
-                BorderBrush="#CCCCCC"
-                BorderThickness="1"
-                CornerRadius="6">
+                    <!-- SEARCH (TextBox + Watermark Overlay) -->
+                    <Grid Margin="0,10,0,0">
+                        <TextBox
+                            x:Name="SearchBox"
+                            Height="30"
+                            Padding="10,6"
+                            FontSize="13"
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            ToolTip="Search by name or description"
+                            SpellCheck.IsEnabled="False"/>
 
-                <Grid>
-                    <ListView
-                        ItemsSource="{Binding CurrentSubscriptions}"
-                        ItemTemplate="{StaticResource SubscriptionRowTemplate}"
-                        HorizontalContentAlignment="Stretch"
-                        MouseDoubleClick="Subscriptions_DoubleClick">
 
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="BorderBrush" Value="Transparent"/>
-                                <Setter Property="Padding" Value="0"/>
 
+
+                        <!-- Watermark -->
+                    <TextBlock
+                            Text="Search subscriptions..."
+                            Margin="12,0,0,0"
+                            VerticalAlignment="Center"
+                            Foreground="#777"
+                            Opacity="0.65"
+                            IsHitTestVisible="False">
+
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#11000000"/>
-                                        <Setter Property="BorderBrush" Value="#22000000"/>
-                                    </Trigger>
-
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#2AAEDCFF"/>
-                                        <Setter Property="BorderBrush" Value="#FF7CBCE6"/>
-                                    </Trigger>
+                                    <DataTrigger
+                                            Binding="{Binding SearchText}"
+                                            Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </ListView.ItemContainerStyle>
-                    </ListView>
-
-                    <TextBlock
-                        Text="{Binding EmptyMessage}"
-                        Visibility="{Binding EmptyMessageVisibility}"
-                        FontSize="16"
-                        FontWeight="SemiBold"
-                        Foreground="Gray"
-                        Opacity="0.7"
-                        FontStyle="Italic"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        TextAlignment="Center"/>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Grid>
-            </Border>
-        </Grid>
 
-        <TextBlock
-            Grid.Row="1"
-            Grid.ColumnSpan="2"
-            Text="{Binding AppVersion}"
-            FontSize="10"
-            Foreground="#666"
-            Opacity="0.45"
-            HorizontalAlignment="Center"
-            Margin="0,2,0,8"/>
-    </Grid>
-</Window>
+
+                <ComboBox
+                    x:Name="SortCombo"
+                    Margin="0,6,0,0"
+                    Height="26"
+                    Width="254"
+                    SelectedIndex="{Binding CurrentSortIndex, Mode=TwoWay}">
+
+                    <ComboBoxItem Content="Sort by Name"/>
+                    <ComboBoxItem Content="Sort by Cost (High → Low)"/>
+                    <ComboBoxItem Content="Sort by Days Until Billing"/>
+                </ComboBox>
+
+
+            </StackPanel>
+
+                <!-- List -->
+                <Border
+                    Grid.Row="2"
+                    Margin="0,16,0,0"
+                    BorderBrush="#CCC"
+                    BorderThickness="1"
+                    CornerRadius="6">
+
+                    <Grid>
+                        <ListView
+                            ItemsSource="{Binding CurrentSubscriptions}"
+                            ItemTemplate="{StaticResource SubscriptionRowTemplate}"
+                            HorizontalContentAlignment="Stretch"
+                            MouseDoubleClick="Subscriptions_DoubleClick">
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+
+
+                        <TextBlock
+                            Text="{Binding EmptyMessage}"
+                            Visibility="{Binding EmptyMessageVisibility}"
+                            Foreground="Gray"
+                            FontStyle="Italic"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Footer -->
+            <TextBlock
+                Grid.Row="1"
+                Grid.ColumnSpan="2"
+                Text="{Binding AppVersion}"
+                FontSize="10"
+                Opacity="0.5"
+                HorizontalAlignment="Center"
+                Margin="0,4"/>
+        </Grid>
+    </Window>

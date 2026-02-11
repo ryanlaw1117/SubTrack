@@ -7,14 +7,20 @@ SubTrack is a lightweight **WPF desktop application for Windows** that helps you
 ## Features
 
 - Track **monthly and yearly** subscriptions
-<img width="782" height="442" alt="image" src="https://github.com/user-attachments/assets/3b91d628-aab4-4ed5-9591-5b918d3c8dac" />
-<img width="783" height="442" alt="image" src="https://github.com/user-attachments/assets/47ee0e3b-47e0-4ecc-8625-09d1b24daee7" />
+<img width="783" height="445" alt="image" src="https://github.com/user-attachments/assets/4b775add-133b-4e17-82f9-da290cb5897d" />
+<img width="782" height="440" alt="image" src="https://github.com/user-attachments/assets/5aa2356c-1d25-4047-b457-7037e44e8562" />
+
 
 - Toggle between **Active** and **Disabled** subscriptions
-<img width="784" height="444" alt="image" src="https://github.com/user-attachments/assets/8d2366c8-4cec-46dd-bf82-ac814641f898" />
+<img width="783" height="440" alt="image" src="https://github.com/user-attachments/assets/08f1aebd-20a9-4248-886c-94843a35bd8b" />
 
+
+- Sort Subscriptions by **Days Until Billing**, **Name**, and **Cost (High --> Low)**
+<img width="782" height="440" alt="image" src="https://github.com/user-attachments/assets/d681e79a-4ead-4150-ad63-ac70a258ee5c" />
+
+ 
 - Real-time **search** by subscription name or description
-<img width="782" height="441" alt="image" src="https://github.com/user-attachments/assets/f5dc89e1-8cde-4900-9ba5-6932bfc126e1" />
+<img width="781" height="443" alt="image" src="https://github.com/user-attachments/assets/ebc06ed2-ea89-402c-b276-62872e145a22" />
 
 - Automatic monthly and yearly total calculations
 - Visual indicator for time until the next billing date

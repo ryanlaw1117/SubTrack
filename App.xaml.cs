@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using System;
 using System.Windows;
 
 namespace Subscription_Manager
@@ -9,21 +10,15 @@ namespace Subscription_Manager
         {
             base.OnStartup(e);
 
-            try
+            ToastNotificationManagerCompat.OnActivated += toastArgs =>
             {
-                var window = new MainWindow();
-                window.Show();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    ex.ToString(),
-                    "Startup Crash",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                });
+            };
 
-                Shutdown(-1);
-            }
+            var window = new MainWindow();
+            window.Show();
         }
     }
 }

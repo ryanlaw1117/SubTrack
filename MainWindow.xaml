@@ -1,23 +1,22 @@
-﻿    <Window
+﻿<Window
         x:Class="Subscription_Manager.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Subscription_Manager"
-        xmlns:conv="clr-namespace:Subscription_Manager.Converters"
+       xmlns:converters="clr-namespace:Subscription_Manager.Converters"
        
 
         Title="SubTrack"
         Height="450"
         Width="800"
         Background="#FFD9D9D9">
-        <Window.InputBindings>
+    <Window.InputBindings>
         
             <KeyBinding
             Key="N"
             Modifiers="Control"
             Command="{Binding NewSubscriptionCommand}"/>
 
-        
             <KeyBinding
             Key="Escape"
             Command="{Binding ClearSearchCommand}"/>
@@ -25,9 +24,8 @@
 
 
         <Window.Resources>
-        <conv:StringToBrushConverter x:Key="StringToBrushConverter"/>
-            
-            
+        <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
+
         <DataTemplate x:Key="SubscriptionRowTemplate">
                 <Border
                     x:Name="RowRoot"
@@ -76,12 +74,21 @@
                     </StackPanel>
 
                         <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                            <TextBlock
-                                Text="{Binding Cost, StringFormat=C}"
-                                FontWeight="Bold"
-                                HorizontalAlignment="Right"/>
+                        <TextBlock
+                            FontWeight="Bold"
+                            HorizontalAlignment="Right">
 
-                            <TextBlock
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0}{1:F2}">
+                                    <Binding Path="DataContext.AppSettings.CurrencySymbol"
+                     RelativeSource="{RelativeSource AncestorType=Window}" />
+                                    <Binding Path="Cost"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+
+
+                        <TextBlock
                                 Text="{Binding DaysUntilBillingText}"
                                 FontSize="11"
                                 Foreground="{Binding BillingWarningBrush}"
@@ -122,14 +129,23 @@
                     <StackPanel Visibility="{Binding CalculatorVisibility}">
                         <TextBlock Text="{Binding TotalLabel}" Foreground="White" FontWeight="Bold"/>
 
-                        <TextBlock
-                            Text="{Binding DisplayedTotal, StringFormat=C}"
-                            FontSize="22"
-                            FontWeight="Bold"
-                            Foreground="White"
-                            Margin="0,4,0,8" FontFamily="Consolas"/>
+                    <TextBlock
+                        FontSize="22"
+                        FontWeight="Bold"
+                        Foreground="White"
+                        Margin="0,4,0,8"
+                        FontFamily="Consolas">
 
-                        <StackPanel Orientation="Horizontal">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0}{1:F2}">
+                                <Binding Path="AppSettings.CurrencySymbol"/>
+                                <Binding Path="DisplayedTotal"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+
+
+                    <StackPanel Orientation="Horizontal">
                             <RadioButton
                                 Content="Monthly"
                                 IsChecked="True"
@@ -173,25 +189,50 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header -->
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+<Grid Grid.Row="0" Margin="0,0,0,8">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="{Binding SubscriptionsHeader}" FontSize="22" FontWeight="Bold" FontFamily="Cooper Black"/>
+    <!-- Title -->
+    <TextBlock Grid.Column="0"
+               Text="{Binding SubscriptionsHeader}"
+               FontSize="22"
+               FontWeight="Bold"
+               FontFamily="Cooper Black"
+               VerticalAlignment="Center"/>
 
-                    <Button
-                        Grid.Column="1"
-                        Content="Add"
-                        Width="80"
-                        Margin="12,0,0,0"
-                        Click="Add_Click"
-                        FontFamily="Cooper Black"
-                        FontSize="16"
-                        Background="#FFF15A21"
-                        Foreground="White"/>
-                </Grid>
+    <!-- Actions -->
+    <StackPanel Grid.Column="1"
+                Orientation="Horizontal"
+                VerticalAlignment="Center">
+
+        <!-- Settings -->
+        <Button Width="32"
+                Height="32"
+                Margin="0,0,8,0"
+                ToolTip="Settings"
+                Click="OpenSettings_Click"
+                BorderBrush="#B0B0B0" FontFamily="Cooper Black" FontSize="16" Foreground="White" Background="#FF707070">
+            <TextBlock Text="⚙"
+                       FontSize="14"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center" Foreground="White"/>
+        </Button>
+
+        <!-- Add -->
+        <Button Width="80"
+                Height="32"
+                Content="Add"
+                Click="Add_Click"
+                FontFamily="Cooper Black"
+                FontSize="16"
+                Background="#FFF15A21"
+                Foreground="White"/>
+    </StackPanel>
+</Grid>
+
 
                 <StackPanel Grid.Row="1" Margin="0,10,0,0">
 

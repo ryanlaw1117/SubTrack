@@ -34,7 +34,7 @@
                 Margin="0,5,20,15"
                 TextChanged="InputChanged"/>
 
-            <TextBlock Text="Cost ($USD)*"
+            <TextBlock Text="Cost*"
                        Grid.Row="2"
                        FontFamily="Cooper Black" FontSize="16"/>
 
@@ -45,30 +45,28 @@
                 TextChanged="InputChanged"/>
 
 
-            <TextBlock Text="Color"
+            <TextBlock Text="Select Color: "
                        Grid.Row="4"
                        FontFamily="Cooper Black" FontSize="16"/>
 
             <Button x:Name="ColorButton"
                 Grid.Row="5"
-                Width="120"
-                Content="Select Color"
-                Margin="0,5,0,0"
+                Margin="10,2,247,3"
                 BorderBrush="#FFED2323"
                 Foreground="White"
                 Background="#FF822525"
                 FontFamily="Cooper Black"
                 Click="ColorButton_Click"/>
             <TextBlock
-                Text="Category"
+                Text="Select Category: "
                 FontWeight="Bold"
-                Margin="0,36,226,-34" Grid.Row="5"
+                Margin="0,36,195,-34" Grid.Row="5"
                 FontFamily="Cooper Black" FontSize="16"/>
             <ComboBox
                 x:Name="CategoryBox"
                 SelectedValuePath="."
                 Height="28"
-                Margin="10,69,43,-75"
+                Margin="10,69,137,-75"
                 IsEditable="False"
                 SelectedValue="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5">
                 <sys:String>Streaming</sys:String>
@@ -160,18 +158,18 @@
 
 
 
-            <Button Content="Cancel"
-                    Width="82"
+            <Button Content="Cancel (Esc)"
+                    Width="108"
                     Height="34"
                     Click="Cancel_Click"
                     Background="#FFFF5757"
                     Foreground="White"
                     FontWeight="Bold"
                     FontFamily="Cooper Black"
-                    FontSize="20"/>
+                    FontSize="16"/>
 
-            <Button Content="Add"
-                    Width="87"
+            <Button Content="Add (Enter)"
+                    Width="113"
                     Height="32"
                     Margin="10,0,0,0"
                     Click="Add_Click"
@@ -179,7 +177,7 @@
                     Foreground="White"
                     FontWeight="Bold"
                     FontFamily="Cooper Black"
-                    FontSize="20"/>
+                    FontSize="16"/>
         </StackPanel>
     </Grid>
 </Window>

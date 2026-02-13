@@ -33,7 +33,7 @@
                 TextChanged="InputChanged"/>
 
 
-            <TextBlock Text="Cost($USD)*" Grid.Row="2" FontFamily="Cooper Black" FontSize="15"/>
+            <TextBlock Text="Cost*" Grid.Row="2" FontFamily="Cooper Black" FontSize="15"/>
             <TextBox x:Name="CostBox"
                 Grid.Row="3"
                 Margin="0,5,20,15"
@@ -41,17 +41,25 @@
                 TextChanged="InputChanged"/>
 
 
-            <TextBlock Text="Color" Grid.Row="4" FontFamily="Cooper Black" FontSize="15"/>
+            <TextBlock Text="Select Color: " Grid.Row="4" FontFamily="Cooper Black" FontSize="15"/>
             <Button x:Name="ColorButton"
                 Grid.Row="5"
-                Width="120"
-                Content="Select Color"
-                Margin="0,5,0,0"
+                Content=""
+                Margin="10,1,242,2"
                 Click="ColorButton_Click"
                 BorderBrush="#FFED2323"
                 Foreground="White"
                 Background="#FF822525"
-                FontFamily="Cooper Black"/>
+                FontFamily="Cooper Black" RenderTransformOrigin="0.5,0.5">
+                <Button.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="-0.511"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Button.RenderTransform>
+            </Button>
 
 
 
@@ -60,16 +68,22 @@
                       Content="Active"
                       FontFamily="Cooper Black"
                       FontSize="13" Margin="0,143,0,-143"/>
+
+            <CheckBox
+                Content="Enable notifications"
+                IsChecked="{Binding NotificationsEnabled, Mode=TwoWay}"
+                Margin="0,169,180,-163" Grid.Row="6" 
+                FontFamily="Cooper Black"/>
             <TextBlock
-                Text="Category"
+                Text="Select Category:"
                 FontWeight="Bold"
-                Margin="0,25,226,-23" Grid.Row="6"
+                Margin="0,25,195,-23" Grid.Row="6"
                 FontFamily="Cooper Black" FontSize="16"/>
             <ComboBox
                 x:Name="CategoryBox"
                 SelectedValuePath="."
                 Height="28"
-                Margin="10,56,43,-63"
+                Margin="10,56,136,-63"
                 IsEditable="False"
                 SelectedValue="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="6">
                 <sys:String>Streaming</sys:String>
@@ -164,7 +178,7 @@
                 FontSize="20"/>
 
                 <Button
-                Content="Cancel"
+                Content="Cancel (Esc)"
                 Width="120"
                 Margin="8,0,0,0"
                 IsCancel="True"
@@ -173,9 +187,9 @@
                 Foreground="White"
                 FontWeight="Bold"
                 FontFamily="Cooper Black"
-                FontSize="20"/>
+                FontSize="16"/>
 
-                <Button Content="Save"
+                <Button Content="Save (Enter)"
                 Width="120"
                 Height="42"
                 Margin="10,0,0,0"
@@ -184,7 +198,7 @@
                 Foreground="White"
                 FontWeight="Bold"
                 FontFamily="Cooper Black"
-                FontSize="20"/>
+                FontSize="16"/>
             </StackPanel>
         </StackPanel>
     </Grid>

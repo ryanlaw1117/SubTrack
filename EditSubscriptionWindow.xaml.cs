@@ -16,13 +16,14 @@ namespace Subscription_Manager
 
         private Subscription _draft;
         private string? _selectedAccentColor;
+        public AppSettings AppSettings { get; }
 
-        public EditSubscriptionWindow(Subscription subscription, ObservableCollection<Subscription> subscriptions)
+        public EditSubscriptionWindow(Subscription subscription, ObservableCollection<Subscription> subscriptions, AppSettings appSettings)
         {
             InitializeComponent();
-
             _subscription = subscription;
             _subscriptions = subscriptions;
+            AppSettings = appSettings;
 
             _draft = new Subscription
             {
@@ -30,6 +31,7 @@ namespace Subscription_Manager
                 Cost = _subscription.Cost,
                 IsYearly = _subscription.IsYearly,
                 IsActive = _subscription.IsActive,
+                NotificationsEnabled = _subscription.NotificationsEnabled,
                 FirstBillingDate = _subscription.FirstBillingDate,
                 Description = _subscription.Description ?? string.Empty,
                 Category = _subscription.Category ?? string.Empty,
@@ -105,6 +107,7 @@ namespace Subscription_Manager
             _subscription.Cost = _draft.Cost;
             _subscription.IsYearly = _draft.IsYearly;
             _subscription.IsActive = _draft.IsActive;
+            _subscription.NotificationsEnabled = _draft.NotificationsEnabled;
             _subscription.FirstBillingDate = _draft.FirstBillingDate;
             _subscription.Description = _draft.Description;
             _subscription.Category = _draft.Category;
@@ -112,7 +115,7 @@ namespace Subscription_Manager
 
             _subscription.UpdateNextBillingDate();
 
-            SubscriptionStorage.Save(_subscriptions);
+            Subscription_Manager.SubscriptionStorage.Save(_subscriptions);
             DialogResult = true;
             Close();
         }
@@ -135,7 +138,7 @@ namespace Subscription_Manager
                 return;
 
             _subscriptions.Remove(_subscription);
-            SubscriptionStorage.Save(_subscriptions);
+            Subscription_Manager.SubscriptionStorage.Save(_subscriptions);
             DialogResult = true;
             Close();
         }

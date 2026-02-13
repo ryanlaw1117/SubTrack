@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net10.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
 		<RootNamespace>Subscription_Manager</RootNamespace>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
@@ -10,9 +10,12 @@
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 
+		<AppUserModelId>SubTrack</AppUserModelId>
+		<ToastActivatorCLSID>{B2E06A74-6A61-4C9C-9D63-4BFA8E0F3F01}</ToastActivatorCLSID>
+
 		<ApplicationIcon>SubTrackIcon.ico</ApplicationIcon>
-		<FileVersion>0.3.0</FileVersion>
-		<Version>0.3.0</Version>
+		<FileVersion>0.4.0</FileVersion>
+		<Version>0.4.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -29,11 +32,13 @@
     </Resource>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	</ItemGroup>
 
-  <ItemGroup>
+
+	<ItemGroup>
     <Resource Include="Fonts\COOPBL.TTF">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

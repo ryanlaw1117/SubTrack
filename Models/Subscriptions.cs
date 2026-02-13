@@ -16,6 +16,30 @@ namespace Subscription_Manager.Models
         private string _description = string.Empty;
         private string _category = string.Empty;
         private string? _accentColor;
+        private bool _notificationsEnabled = true;
+        private DateTime? _lastNotifiedDate;
+
+        public DateTime? LastNotifiedDate
+        {
+            get => _lastNotifiedDate;
+            set
+            {
+                if (_lastNotifiedDate == value) return;
+                _lastNotifiedDate = value;
+                OnPropertyChanged(nameof(LastNotifiedDate));
+            }
+        }
+
+        public bool NotificationsEnabled
+        {
+            get => _notificationsEnabled;
+            set
+            {
+                if (_notificationsEnabled == value) return;
+                _notificationsEnabled = value;
+                OnPropertyChanged(nameof(NotificationsEnabled));
+            }
+        }
 
         public string Name
         {

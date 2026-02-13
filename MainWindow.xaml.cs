@@ -1,6 +1,5 @@
-﻿using Subscription_Manager;
-using Subscription_Manager.Commands;
-using Subscription_Manager.Models;
+﻿using Subscription_Manager.Models;
+using Subscription_Manager.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace Subscription_Manager
 {
@@ -21,8 +21,14 @@ namespace Subscription_Manager
         private decimal _yearlyTotal;
         private decimal _monthlyTotal;
         private string _searchText = "";
+        private readonly DispatcherTimer _notificationTimer = new();
+
         public ICommand NewSubscriptionCommand { get; }
         public ICommand ClearSearchCommand { get; }
+        public AppSettings AppSettings { get; }
+
+        public string FormattedDisplayedTotal =>
+            $"{AppSettings.CurrencySymbol}{DisplayedTotal:F2}";
 
         public string EmptyMessage
         {
@@ -37,14 +43,10 @@ namespace Subscription_Manager
             }
         }
 
-
         public Visibility EmptyMessageVisibility =>
             CurrentSubscriptions.Any()
-            ? Visibility.Collapsed
-            : Visibility.Visible;
-
-
-
+                ? Visibility.Collapsed
+                : Visibility.Visible;
 
         public bool IsYearly
         {
@@ -58,8 +60,10 @@ namespace Subscription_Manager
                 OnPropertyChanged(nameof(IsYearly));
                 OnPropertyChanged(nameof(TotalLabel));
                 OnPropertyChanged(nameof(DisplayedTotal));
+                OnPropertyChanged(nameof(FormattedDisplayedTotal));
             }
         }
+
         public string SearchText
         {
             get => _searchText;
@@ -92,15 +96,12 @@ namespace Subscription_Manager
                 || desc.Contains(q, StringComparison.OrdinalIgnoreCase);
         }
 
-
         private void RecalculateTotals()
         {
             decimal yearlyTotal = 0m;
 
             foreach (var sub in ActiveSubscriptions)
-            {
                 yearlyTotal += sub.IsYearly ? sub.Cost : sub.Cost * 12;
-            }
 
             _yearlyTotal = yearlyTotal;
             _monthlyTotal = yearlyTotal / 12;
@@ -108,38 +109,9 @@ namespace Subscription_Manager
             OnPropertyChanged(nameof(YearlyTotal));
             OnPropertyChanged(nameof(MonthlyTotal));
             OnPropertyChanged(nameof(DisplayedTotal));
-        }
-        private void RefreshSubscriptionsView()
-        {
-            var view = System.Windows.Data.CollectionViewSource
-                .GetDefaultView(CurrentSubscriptions);
-
-            view?.Refresh();
+            OnPropertyChanged(nameof(FormattedDisplayedTotal));
         }
 
-        private void SortSubscriptions()
-        {
-            if (Subscriptions == null || Subscriptions.Count < 2)
-                return;
-
-            var sorted = Subscriptions
-                .OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            Subscriptions.Clear();
-
-            foreach (var sub in sorted)
-                Subscriptions.Add(sub);
-        }
-        private void ApplyDefaultSorting()
-        {
-            var view = CollectionViewSource.GetDefaultView(CurrentSubscriptions);
-            if (view == null) return;
-
-            view.SortDescriptions.Clear();
-            view.SortDescriptions.Add(new SortDescription(nameof(Models.Subscription.Name), ListSortDirection.Ascending));
-            view.Refresh();
-        }
         private void RootGrid_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (SearchBox == null)
@@ -187,10 +159,8 @@ namespace Subscription_Manager
                 if (!string.IsNullOrWhiteSpace(SearchText))
                 {
                     SearchText = string.Empty;
-
                     FocusManager.SetFocusedElement(this, this);
                     Keyboard.ClearFocus();
-
                     e.Handled = true;
                 }
             }
@@ -212,7 +182,6 @@ namespace Subscription_Manager
                 SearchBox.SelectAll();
                 e.Handled = true;
             }
-
         }
 
         public decimal YearlyTotal => _yearlyTotal;
@@ -243,8 +212,7 @@ namespace Subscription_Manager
             }
         }
 
-        public int SubscriptionCount =>
-            CurrentSubscriptions?.Count() ?? 0;
+        public int SubscriptionCount => CurrentSubscriptions?.Count() ?? 0;
 
         public Visibility CalculatorVisibility =>
             ShowDisabled ? Visibility.Collapsed : Visibility.Visible;
@@ -253,36 +221,27 @@ namespace Subscription_Manager
 
         public IEnumerable<Subscription> ActiveSubscriptions =>
             ApplySorting(
-            Subscriptions?
-            .Where(s => s.IsActive)
-            .Where(MatchesSearch)
-            ?? Enumerable.Empty<Subscription>()
+                Subscriptions?
+                    .Where(s => s.IsActive)
+                    .Where(MatchesSearch)
+                ?? Enumerable.Empty<Subscription>()
             );
-
-
 
         public IEnumerable<Subscription> DisabledSubscriptions =>
             ApplySorting(
-            Subscriptions?
-            .Where(s => !s.IsActive)
-            .Where(MatchesSearch)
-            ?? Enumerable.Empty<Subscription>()
+                Subscriptions?
+                    .Where(s => !s.IsActive)
+                    .Where(MatchesSearch)
+                ?? Enumerable.Empty<Subscription>()
             );
-
-
 
         private IEnumerable<Subscription> ApplySorting(IEnumerable<Subscription> source)
         {
             return CurrentSort switch
             {
-                SortMode.Cost =>
-                    source.OrderByDescending(s => s.Cost),
-
-                SortMode.DaysUntilBilling =>
-                    source.OrderBy(s => s.DaysUntilBilling),
-
-                _ =>
-                    source.OrderBy(s => s.Name?.Trim(), StringComparer.OrdinalIgnoreCase),
+                SortMode.Cost => source.OrderByDescending(s => s.Cost),
+                SortMode.DaysUntilBilling => source.OrderBy(s => s.DaysUntilBilling),
+                _ => source.OrderBy(s => s.Name?.Trim(), StringComparer.OrdinalIgnoreCase),
             };
         }
 
@@ -292,11 +251,8 @@ namespace Subscription_Manager
         public string SubscriptionsHeader =>
             ShowDisabled ? "Disabled Subscriptions" : "Active Subscriptions";
 
-
-        private static string Pluralize(int count, string word)
-        {
-            return count == 1 ? word : word + "s";
-        }
+        private static string Pluralize(int count, string word) =>
+            count == 1 ? word : word + "s";
 
         public string SubscriptionCountText
         {
@@ -305,10 +261,10 @@ namespace Subscription_Manager
                 int count = SubscriptionCount;
                 string state = ShowDisabled ? "disabled" : "active";
                 string noun = Pluralize(count, "subscription");
-
                 return $"You have {count} {state} {noun}";
             }
         }
+
         public string AppVersion
         {
             get
@@ -318,10 +274,10 @@ namespace Subscription_Manager
                 return $"v{v.Major}.{v.Minor}.{v.Build}";
             }
         }
-        
+
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            var window = new AddSubscriptionWindow(Subscriptions)
+            var window = new AddSubscriptionWindow(Subscriptions, AppSettings)
             {
                 Owner = this
             };
@@ -337,12 +293,17 @@ namespace Subscription_Manager
         private void Subscription_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             SubscriptionStorage.Save(Subscriptions);
+
+            RecalculateTotals();
+
+            OnPropertyChanged(nameof(CurrentSubscriptions));
             OnPropertyChanged(nameof(EmptyMessageVisibility));
             OnPropertyChanged(nameof(SubscriptionCountText));
         }
+
         private void OpenAddSubscription()
         {
-            var window = new AddSubscriptionWindow(Subscriptions)
+            var window = new AddSubscriptionWindow(Subscriptions, AppSettings)
             {
                 Owner = this
             };
@@ -354,41 +315,65 @@ namespace Subscription_Manager
             OnPropertyChanged(nameof(SubscriptionCountText));
             RecalculateTotals();
         }
-        public IEnumerable<SortMode> SortModes { get; } =
-        new[]
+        private void ApplyNotificationSettings()
         {
-            SortMode.Name,
-            SortMode.Cost,
-            SortMode.DaysUntilBilling
-        };
+            if (AppSettings.NotificationsEnabled)
+            {
+                if (!_notificationTimer.IsEnabled)
+                    _notificationTimer.Start();
+
+                CheckForDueNotifications();
+            }
+            else
+            {
+                if (_notificationTimer.IsEnabled)
+                    _notificationTimer.Stop();
+            }
+        }
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new SettingsWindow(AppSettings) { Owner = this };
+
+            if (window.ShowDialog() == true)
+            {
+                SettingsStorage.Save(AppSettings);
+
+                RecalculateTotals();
+
+                OnPropertyChanged(nameof(FormattedDisplayedTotal));
+                OnPropertyChanged(nameof(CurrentSubscriptions));
+                OnPropertyChanged(nameof(SubscriptionCountText));
+
+                CheckForDueNotifications();
+            }
+        }
+        public IEnumerable<SortMode> SortModes { get; } =
+            new[] { SortMode.Name, SortMode.Cost, SortMode.DaysUntilBilling };
 
         public MainWindow()
         {
             Subscriptions = SubscriptionStorage.Load();
+            AppSettings = SettingsStorage.Load();
 
             InitializeComponent();
+            CheckForDueNotifications();
+
+            DataContext = this;
             NewSubscriptionCommand = new RelayCommand(OpenAddSubscription);
             ClearSearchCommand = new RelayCommand(
                 () => SearchText = string.Empty,
                 () => !string.IsNullOrWhiteSpace(SearchText)
             );
 
-            if (Enum.TryParse(
-        Properties.Settings.Default.LastSortMode,
-        out SortMode savedSort))
-            {
+            
+            if (Enum.TryParse(Properties.Settings.Default.LastSortMode, out SortMode savedSort))
                 _currentSort = savedSort;
-            }
             else
-            {
                 _currentSort = SortMode.Name;
-            }
-            DataContext = this;
 
+            
             foreach (var sub in Subscriptions)
-            {
                 sub.PropertyChanged += Subscription_PropertyChanged;
-            }
 
             Subscriptions.CollectionChanged += (_, e) =>
             {
@@ -410,19 +395,46 @@ namespace Subscription_Manager
             };
 
             RecalculateTotals();
+
+            CheckForDueNotifications();
+
+            _notificationTimer.Interval = TimeSpan.FromHours(1);
+            _notificationTimer.Tick += (_, __) => CheckForDueNotifications();
+
+            ApplyNotificationSettings();
+        }
+        private void CheckForDueNotifications()
+        {
+            if (!AppSettings.NotificationsEnabled)
+                return;
+
+            foreach (var sub in Subscriptions)
+            {
+                if (!sub.IsActive)
+                    continue;
+
+                if (!sub.NotificationsEnabled)
+                    continue;
+
+                if (sub.DaysUntilBilling != 0)
+                    continue;
+
+
+                if (sub.LastNotifiedDate?.Date == DateTime.Today)
+                    continue;
+
+                NotificationService.ShowBillingReminder(sub, AppSettings);
+
+                sub.LastNotifiedDate = DateTime.Today;
+            }
+
+            SubscriptionStorage.Save(Subscriptions);
         }
 
-        private void Monthly_Checked(object sender, RoutedEventArgs e) =>
-            IsYearly = false;
-
-        private void Yearly_Checked(object sender, RoutedEventArgs e) =>
-            IsYearly = true;
-
-        private void ShowActive_Click(object sender, RoutedEventArgs e) =>
-            ShowDisabled = false;
-
-        private void ShowDisabled_Click(object sender, RoutedEventArgs e) =>
-            ShowDisabled = true;
+        private void Monthly_Checked(object sender, RoutedEventArgs e) => IsYearly = false;
+        private void Yearly_Checked(object sender, RoutedEventArgs e) => IsYearly = true;
+        private void ShowActive_Click(object sender, RoutedEventArgs e) => ShowDisabled = false;
+        private void ShowDisabled_Click(object sender, RoutedEventArgs e) => ShowDisabled = true;
 
         private void Subscriptions_DoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -432,11 +444,10 @@ namespace Subscription_Manager
             if (listView.SelectedItem is not Subscription selectedSubscription)
                 return;
 
-            var window = new EditSubscriptionWindow(selectedSubscription, Subscriptions)
+            var window = new EditSubscriptionWindow(selectedSubscription, Subscriptions, AppSettings)
             {
                 Owner = this
             };
-
 
             window.ShowDialog();
 
@@ -446,6 +457,7 @@ namespace Subscription_Manager
             RecalculateTotals();
             OnPropertyChanged(nameof(EmptyMessageVisibility));
         }
+
         private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(SearchText))
@@ -472,8 +484,10 @@ namespace Subscription_Manager
                 OnPropertyChanged(nameof(CurrentSort));
                 OnPropertyChanged(nameof(CurrentSubscriptions));
                 OnPropertyChanged(nameof(EmptyMessageVisibility));
+                OnPropertyChanged(nameof(SubscriptionCountText));
             }
         }
+
         public int CurrentSortIndex
         {
             get => (int)CurrentSort;

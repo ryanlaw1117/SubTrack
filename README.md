@@ -7,20 +7,17 @@ SubTrack is a lightweight **WPF desktop application for Windows** that helps you
 ## Features
 
 - Track **monthly and yearly** subscriptions
-<img width="783" height="445" alt="image" src="https://github.com/user-attachments/assets/4b775add-133b-4e17-82f9-da290cb5897d" />
-<img width="782" height="440" alt="image" src="https://github.com/user-attachments/assets/5aa2356c-1d25-4047-b457-7037e44e8562" />
-
+<img width="1032" height="640" alt="image" src="https://github.com/user-attachments/assets/d7dd7ca4-3ed3-42d3-ba29-0ac264a6566f" />
+<img width="1032" height="638" alt="image" src="https://github.com/user-attachments/assets/37d7fa5c-9f0b-4f16-8871-26b4f89bcc43" />
 
 - Toggle between **Active** and **Disabled** subscriptions
-<img width="783" height="440" alt="image" src="https://github.com/user-attachments/assets/08f1aebd-20a9-4248-886c-94843a35bd8b" />
-
-
+<img width="1032" height="636" alt="image" src="https://github.com/user-attachments/assets/95aec7e1-5788-4b37-ad31-a906ec3a4abf" />
+ 
 - Sort Subscriptions by **Days Until Billing**, **Name**, and **Cost (High --> Low)**
-<img width="782" height="440" alt="image" src="https://github.com/user-attachments/assets/d681e79a-4ead-4150-ad63-ac70a258ee5c" />
-
+<img width="1032" height="641" alt="image" src="https://github.com/user-attachments/assets/4d005e2b-8080-4ac8-a544-feb678fab37b" />
  
 - Real-time **search** by subscription name or description
-<img width="781" height="443" alt="image" src="https://github.com/user-attachments/assets/ebc06ed2-ea89-402c-b276-62872e145a22" />
+<img width="1031" height="643" alt="image" src="https://github.com/user-attachments/assets/8bc5dd8c-4b4a-49a6-b22a-deaa1cf0d0d0" />
 
 - Automatic monthly and yearly total calculations
 - Visual indicator for time until the next billing date
@@ -36,7 +33,7 @@ SubTrack is a lightweight **WPF desktop application for Windows** that helps you
 ## Download & Run
 
 1. Go to the **Releases** section of this repository
-2. Download the latest ZIP (for example: `SubTrack-v1.2.0-win64.zip`)
+2. Download the latest ZIP (for example: `SubTrack-v0.6.0-win64.zip`)
 3. Extract the ZIP to any folder
 <img width="778" height="232" alt="image" src="https://github.com/user-attachments/assets/6a40f305-7298-49aa-b89c-8bf89d4d0888" />
 

@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Subscription_Manager.Models;
+using Subscription_Manager;
 
 namespace Subscription_Manager
 {
@@ -78,6 +79,22 @@ namespace Subscription_Manager
 
             Close();
         }
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Add_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                Close();
+                e.Handled = true;
+            }
+
+            base.OnPreviewKeyDown(e);
+        }
+
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {

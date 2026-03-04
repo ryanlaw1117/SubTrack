@@ -202,6 +202,25 @@ namespace Subscription_Manager
             base.OnPreviewKeyDown(e);
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                Cancel_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.Enter)
+            {
+                Save_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+                return;
+            }
+
+            base.OnPreviewKeyDown(e);
+        }
+
         private void CostBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !decimal.TryParse(((TextBox)sender).Text + e.Text, out _);

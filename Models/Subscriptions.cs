@@ -209,7 +209,19 @@ namespace Subscription_Manager.Models
             }
         }
 
-        public void UpdateNextBillingDate()
+        public string DaysUntilBillingText
+        {
+            get
+            {
+                if (DaysUntilBilling == 0) return "Due today";
+                if (DaysUntilBilling == 1) return "1 day";
+                if (DaysUntilBilling < 0) return $"Overdue {Math.Abs(DaysUntilBilling)} days";
+                return $"{DaysUntilBilling} days";
+            }
+        }
+
+        [JsonIgnore]
+        public Brush BillingWarningBrush
         {
            
             if (FirstBillingDate == DateTime.MinValue)

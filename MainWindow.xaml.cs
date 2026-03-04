@@ -93,6 +93,7 @@ namespace Subscription_Manager
 
         public ObservableCollection<Subscription> Subscriptions { get; set; }
 
+
         public bool IsYearly
         {
             get => _isYearly;
@@ -460,6 +461,27 @@ namespace Subscription_Manager
             OnPropertyChanged(nameof(EmptyMessage));
             OnPropertyChanged(nameof(EmptyMessageVisibility));
         }
+        private void OpenAddSubscription()
+        {
+            var window = new AddSubscriptionWindow(Subscriptions)
+            {
+                Owner = this
+            };
+
+            window.ShowDialog();
+
+            OnPropertyChanged(nameof(CurrentSubscriptions));
+            OnPropertyChanged(nameof(SubscriptionCount));
+            OnPropertyChanged(nameof(SubscriptionCountText));
+            RecalculateTotals();
+        }
+        public IEnumerable<SortMode> SortModes { get; } =
+        new[]
+        {
+            SortMode.Name,
+            SortMode.Cost,
+            SortMode.DaysUntilBilling
+        };
 
         private void Subscriptions_DoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -678,6 +700,46 @@ namespace Subscription_Manager
                 SearchBox?.Focus();
                 SearchBox?.SelectAll();
                 e.Handled = true;
+            }
+        }
+        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+                return;
+
+            SearchText = string.Empty;
+        }
+
+        private SortMode _currentSort;
+
+        public SortMode CurrentSort
+        {
+            get => _currentSort;
+            set
+            {
+                if (_currentSort == value)
+                    return;
+
+                _currentSort = value;
+
+                Properties.Settings.Default.LastSortMode = _currentSort.ToString();
+                Properties.Settings.Default.Save();
+
+                OnPropertyChanged(nameof(CurrentSort));
+                OnPropertyChanged(nameof(CurrentSubscriptions));
+                OnPropertyChanged(nameof(EmptyMessageVisibility));
+            }
+        }
+        public int CurrentSortIndex
+        {
+            get => (int)CurrentSort;
+            set
+            {
+                if ((int)CurrentSort == value)
+                    return;
+
+                CurrentSort = (SortMode)value;
+                OnPropertyChanged(nameof(CurrentSortIndex));
             }
         }
 

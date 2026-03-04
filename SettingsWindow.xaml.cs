@@ -1,7 +1,10 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using Subscription_Manager.Models;
+using Subscription_Manager.Services;
+
 
 namespace Subscription_Manager
 {
@@ -24,7 +27,6 @@ namespace Subscription_Manager
 
         private void SettingsWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            
             if (e.Key == Key.Escape)
             {
                 DialogResult = false;
@@ -35,8 +37,37 @@ namespace Subscription_Manager
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+
+            if (_draft.QuietStart == _draft.QuietEnd)
+            {
+                MessageBox.Show(
+                    "Quiet hours start and end time cannot be the same.",
+                    "Invalid Quiet Hours",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+
+                return;
+            }
+
+            if (_draft.NotificationDaysBefore < 0)
+            {
+                MessageBox.Show(
+                    "Notification days before billing cannot be negative.",
+                    "Invalid Notification Setting",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+
+                return;
+            }
+
             _target.CopyFrom(_draft);
             SettingsStorage.Save(_target);
+
+            if (_target.NotificationsEnabled)
+                TaskSchedulerService.EnsureTaskExists();
+            else
+                TaskSchedulerService.RemoveTask();
+
             DialogResult = true;
             Close();
         }

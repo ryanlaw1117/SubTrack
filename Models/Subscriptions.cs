@@ -18,6 +18,19 @@ namespace Subscription_Manager.Models
         private string? _accentColor;
         private bool _notificationsEnabled = true;
         private DateTime? _lastNotifiedDate;
+        public DateTime? FirstBillingCycleDate { get; set; }
+
+        private DateTime? _lastVerified;
+        public DateTime? LastVerified
+        {
+            get => _lastVerified;
+            set
+            {
+                if (_lastVerified == value) return;
+                _lastVerified = value;
+                OnPropertyChanged(nameof(LastVerified));
+            }
+        }
 
         public DateTime? LastNotifiedDate
         {
@@ -39,6 +52,25 @@ namespace Subscription_Manager.Models
                 _notificationsEnabled = value;
                 OnPropertyChanged(nameof(NotificationsEnabled));
             }
+
+        }
+        public int GetDaysUntilBilling()
+        {
+            if (FirstBillingCycleDate == null)
+                return int.MaxValue;
+
+            DateTime today = DateTime.Today;
+            DateTime nextBilling = FirstBillingCycleDate.Value;
+
+            while (nextBilling < today)
+            {
+                if (BillingCycle == "Monthly")
+                    nextBilling = nextBilling.AddMonths(1);
+                else
+                    nextBilling = nextBilling.AddYears(1);
+            }
+
+            return (nextBilling - today).Days;
         }
 
         public string Name
@@ -71,6 +103,7 @@ namespace Subscription_Manager.Models
             set { _isActive = value; OnPropertyChanged(nameof(IsActive)); }
         }
 
+
         public DateTime FirstBillingDate
         {
             get => _firstBillingDate;
@@ -92,6 +125,7 @@ namespace Subscription_Manager.Models
                 OnPropertyChanged(nameof(DaysUntilBilling));
                 OnPropertyChanged(nameof(DaysUntilBillingText));
                 OnPropertyChanged(nameof(BillingWarningBrush));
+                OnPropertyChanged(nameof(NextBillingDateFormatted));
             }
         }
 
@@ -132,14 +166,34 @@ namespace Subscription_Manager.Models
 
         public int DaysUntilBilling => (NextBillingDate.Date - DateTime.Today).Days;
 
+
         public string DaysUntilBillingText
         {
             get
             {
-                if (DaysUntilBilling == 0) return "Due today";
-                if (DaysUntilBilling == 1) return "1 day";
-                if (DaysUntilBilling < 0) return $"Overdue {Math.Abs(DaysUntilBilling)} days";
-                return $"{DaysUntilBilling} days";
+                var settings = SettingsStorage.Load();
+                string date = NextBillingDate.ToString(settings.DateFormat);
+
+                if (DaysUntilBilling == 0)
+                    return $"Due today ({date})";
+
+                if (DaysUntilBilling == 1)
+                    return $"1 day ({date})";
+
+                if (DaysUntilBilling < 0)
+                    return $"Overdue {Math.Abs(DaysUntilBilling)} days ({date})";
+
+                return $"{DaysUntilBilling} days ({date})";
+            }
+        }
+
+        [JsonIgnore]
+        public string NextBillingDateFormatted
+        {
+            get
+            {
+                var settings = SettingsStorage.Load();
+                return NextBillingDate.ToString(settings.DateFormat);
             }
         }
 
@@ -172,6 +226,7 @@ namespace Subscription_Manager.Models
                 date = IsYearly ? date.AddYears(1) : date.AddMonths(1);
 
             NextBillingDate = date;
+
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

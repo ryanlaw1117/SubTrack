@@ -22,7 +22,12 @@ namespace Subscription_Manager.Services
             new ToastContentBuilder()
                 .AddText("Subscription Reminder")
                 .AddText(message)
+                .AddButton(new ToastButton()
+                .SetContent("Open SubTrack")
+                .AddArgument("action", "open")
+                .AddArgument("subscription", sub.Name))
                 .Show();
+
         }
     }
 }

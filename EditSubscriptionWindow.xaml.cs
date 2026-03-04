@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Subscription_Manager.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Subscription_Manager.Models;
 
 namespace Subscription_Manager
 {
@@ -35,7 +37,8 @@ namespace Subscription_Manager
                 FirstBillingDate = _subscription.FirstBillingDate,
                 Description = _subscription.Description ?? string.Empty,
                 Category = _subscription.Category ?? string.Empty,
-                AccentColor = _subscription.AccentColor ?? string.Empty
+                AccentColor = _subscription.AccentColor ?? string.Empty,
+                LastVerified = _subscription.LastVerified
             };
 
             _selectedAccentColor = _draft.AccentColor;
@@ -64,6 +67,7 @@ namespace Subscription_Manager
                 ColorButton.Background = new SolidColorBrush(color);
                 ColorButton.Foreground = Brushes.White;
             }
+            UpdateLastVerifiedDisplay();
         }
 
         private void ColorButton_Click(object sender, RoutedEventArgs e)
@@ -112,6 +116,8 @@ namespace Subscription_Manager
             _subscription.Description = _draft.Description;
             _subscription.Category = _draft.Category;
             _subscription.AccentColor = _draft.AccentColor;
+            _subscription.LastVerified = _draft.LastVerified;
+
 
             _subscription.UpdateNextBillingDate();
 
@@ -119,6 +125,19 @@ namespace Subscription_Manager
             DialogResult = true;
             Close();
         }
+        private void UpdateLastVerifiedDisplay()
+        {
+            if (_subscription.LastVerified == null)
+            {
+                LastVerifiedText.Text = "Never";
+                return;
+            }
+
+            LastVerifiedText.Text = _subscription.LastVerified.Value
+                .ToString(AppSettings.DateFormat);
+        }
+
+
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
@@ -128,19 +147,40 @@ namespace Subscription_Manager
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
-                "Delete this subscription?",
-                "Confirm Delete",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+            decimal yearlySavings = _subscription.IsYearly
+                ? _subscription.Cost
+                : _subscription.Cost * 12;
 
-            if (result != MessageBoxResult.Yes)
+            var confirmWindow = new DeleteConfirmationWindow(1, yearlySavings)
+            {
+                Owner = this
+            };
+
+            bool? result = confirmWindow.ShowDialog();
+
+            if (result != true)
                 return;
 
             _subscriptions.Remove(_subscription);
             Subscription_Manager.SubscriptionStorage.Save(_subscriptions);
+
             DialogResult = true;
             Close();
+        }
+        private async void VerifyButton_Click(object sender, RoutedEventArgs e)
+        {
+            _subscription.LastVerified = DateTime.Now;
+            UpdateLastVerifiedDisplay();
+
+            SubscriptionStorage.Save(_subscriptions);
+
+            VerifyFeedbackText.Text = "Verified ✔";
+            VerifyFeedbackText.Foreground = Brushes.Green;
+            VerifyFeedbackText.Visibility = Visibility.Visible;
+
+            await Task.Delay(1500);
+
+            VerifyFeedbackText.Visibility = Visibility.Collapsed;
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)

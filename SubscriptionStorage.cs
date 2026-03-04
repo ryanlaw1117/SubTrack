@@ -27,6 +27,10 @@ namespace Subscription_Manager
 
         public static void Save(ObservableCollection<Subscription> subscriptions)
         {
+            var dir = Path.GetDirectoryName(FilePath);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
+
             var json = JsonSerializer.Serialize(subscriptions, new JsonSerializerOptions
             {
                 WriteIndented = true

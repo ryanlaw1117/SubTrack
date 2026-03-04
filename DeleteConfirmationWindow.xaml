@@ -1,0 +1,48 @@
+﻿<Window x:Class="Subscription_Manager.DeleteConfirmationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Confirm Delete"
+        Height="220"
+        Width="420"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+
+    <StackPanel Margin="20">
+
+        <TextBlock x:Name="TitleText"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,10" 
+                   FontFamily="Cooper Black"/>
+
+        <TextBlock x:Name="SavingsText"
+                   Margin="0,0,0,10"
+                   FontWeight="SemiBold" FontFamily="Cooper Black"/>
+
+        <CheckBox x:Name="ConfirmCheckBox"
+                  Content="I understand this cannot be undone"
+                  Margin="0,10,0,15" FontFamily="Cooper Black"/>
+
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+
+            <Button Content="Delete"
+                    Width="109"
+                    Margin="0,0,10,0"
+                    IsEnabled="{Binding IsChecked, ElementName=ConfirmCheckBox}"
+                    IsDefault="True"
+                    Click="Delete_Click" 
+                    Background="#FFC6451F" 
+                    Foreground="White" 
+                    BorderBrush="#FFBB5050" 
+                    FontFamily="Cooper Black" Height="28" FontSize="16"/>
+
+            <Button Content="Cancel"
+                    Width="109"
+                    IsCancel="True"
+                    Click="Cancel_Click" FontSize="16" FontFamily="Cooper Black" Height="28"/>
+
+        </StackPanel>
+
+    </StackPanel>
+</Window>

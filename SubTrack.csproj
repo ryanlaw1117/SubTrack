@@ -14,8 +14,8 @@
 		<ToastActivatorCLSID>{B2E06A74-6A61-4C9C-9D63-4BFA8E0F3F01}</ToastActivatorCLSID>
 
 		<ApplicationIcon>SubTrackIcon.ico</ApplicationIcon>
-		<FileVersion>0.6.0</FileVersion>
-		<Version>0.6.0</Version>
+		<FileVersion>0.6.1</FileVersion>
+		<Version>0.6.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

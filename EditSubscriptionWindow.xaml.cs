@@ -127,13 +127,13 @@ namespace Subscription_Manager
         }
         private void UpdateLastVerifiedDisplay()
         {
-            if (_subscription.LastVerified == null)
+            if (_draft.LastVerified == null)
             {
                 LastVerifiedText.Text = "Never";
                 return;
             }
 
-            LastVerifiedText.Text = _subscription.LastVerified.Value
+            LastVerifiedText.Text = _draft.LastVerified.Value
                 .ToString(AppSettings.DateFormat);
         }
 
@@ -169,7 +169,7 @@ namespace Subscription_Manager
         }
         private async void VerifyButton_Click(object sender, RoutedEventArgs e)
         {
-            _subscription.LastVerified = DateTime.Now;
+            _draft.LastVerified = DateTime.Now;
             UpdateLastVerifiedDisplay();
 
             SubscriptionStorage.Save(_subscriptions);

@@ -1,0 +1,241 @@
+﻿<Window x:Class="Subscription_Manager.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings"
+        Height="500"
+        Width="500"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#FFEFEFEF">
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <TextBlock Text="Settings"
+                   FontFamily="Cooper Black"
+                   FontSize="26"
+                   Margin="0,0,0,10"/>
+
+        <!-- SCROLLABLE CARD -->
+        <Border Grid.Row="1"
+                Background="White"
+                CornerRadius="8"
+                Padding="20"
+                BorderBrush="#DDD"
+                BorderThickness="1">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+
+                <StackPanel>
+
+                    <!-- ========================= -->
+                    <!-- GENERAL -->
+                    <!-- ========================= -->
+
+                    <TextBlock Text="General"
+                               FontFamily="Cooper Black"
+                               FontSize="16"
+                               Margin="0,10,0,8"/>
+
+                    <Grid Margin="10,0,0,18">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Currency -->
+                        <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Margin="0,2,0,0"
+                           Text="Currency Symbol:"
+                           VerticalAlignment="Top"
+                           FontFamily="Corbel"
+                           FontWeight="SemiBold"
+                           FontSize="13"/>
+
+                        <TextBox Grid.Row="0"
+                             Width="60"
+                             VerticalContentAlignment="Center"
+                             Text="{Binding CurrencySymbol, UpdateSourceTrigger=PropertyChanged}"
+                             MaxLength="3"
+                             PreviewTextInput="CurrencySymbol_PreviewTextInput"
+                             FontFamily="Consolas" Grid.ColumnSpan="2" 
+                             Margin="176,0,144,32" Grid.RowSpan="2"/>
+
+                        <!-- Date Format -->
+                        <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Text="Date Format:"
+                           VerticalAlignment="Center"
+                           FontFamily="Corbel"
+                           FontWeight="SemiBold"
+                           FontSize="13"
+                           Margin="0,10,0,0"/>
+
+                        <ComboBox Grid.Row="1"
+                          Width="180"
+                          Margin="176,9,24,1"
+                          SelectedValue="{Binding DateFormat, Mode=TwoWay}"
+                          SelectedValuePath="Tag" Grid.ColumnSpan="2">
+
+                            <ComboBoxItem Content="Mar 4, 2026" Tag="MMM d, yyyy"/>
+                            <ComboBoxItem Content="03/04/2026" Tag="MM/dd/yyyy"/>
+                            <ComboBoxItem Content="2026-03-04" Tag="yyyy-MM-dd"/>
+
+                        </ComboBox>
+
+                        <!-- Compact Mode -->
+                        <CheckBox Grid.Row="2"
+                          Grid.ColumnSpan="2"
+                          Content="Enable Compact Mode"
+                          Margin="0,12,0,0"
+                          IsChecked="{Binding CompactMode, Mode=TwoWay}"
+                          FontFamily="Corbel"
+                          FontWeight="SemiBold" FontSize="13"/>
+
+                    </Grid>
+
+                    <Separator Margin="0,6,0,14"/>
+
+                    <!-- ========================= -->
+                    <!-- NOTIFICATIONS -->
+                    <!-- ========================= -->
+
+                    <TextBlock Text="Notifications"
+                               FontFamily="Cooper Black"
+                               FontSize="16"
+                               Margin="0,10,0,8"/>
+
+                    <CheckBox Content="Enable desktop notifications"
+                              IsChecked="{Binding NotificationsEnabled}"
+                              FontFamily="Corbel"
+                              FontWeight="SemiBold"
+                              FontSize="13"
+                              Margin="0,0,0,14"/>
+
+                    <!-- CONDITIONAL SETTINGS -->
+                    <StackPanel>
+
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding NotificationsEnabled}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <!-- Days Before -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Notify days before billing:"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Corbel"
+                                       FontWeight="SemiBold"
+                                       FontSize="12"/>
+
+                            <TextBox Grid.Column="1"
+                                     Width="40"
+                                     Height="26"
+                                     VerticalContentAlignment="Center"
+                                     Text="{Binding NotificationDaysBefore, UpdateSourceTrigger=PropertyChanged}"
+                                     FontFamily="Consolas"/>
+                        </Grid>
+
+                        <!-- Play Sound -->
+                        <CheckBox Content="Play sound with notification"
+                                  IsChecked="{Binding PlaySoundOnNotification}"
+                                  FontFamily="Corbel"
+                                  FontWeight="SemiBold"
+                                  FontSize="12"
+                                  Margin="10,0,0,14"/>
+
+                        <!-- Quiet Hours -->
+                        <StackPanel Margin="10,0,0,0">
+
+                            <TextBlock Text="Quiet Hours"
+                                       FontFamily="Corbel"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"
+                                       Margin="0,0,0,6"/>
+
+                            <StackPanel Orientation="Horizontal">
+
+                                <TextBlock Text="Start:"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,6,0"
+                                           FontFamily="Corbel"
+                                           FontWeight="SemiBold"/>
+
+                                <TextBox Width="60"
+                                     FontFamily="Consolas"
+                                     Text="{Binding QuietStart,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,StringFormat=hh\\:mm}" />
+
+
+                                <TextBlock Text="End:"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,6,0"
+                                           FontFamily="Corbel"
+                                           FontWeight="SemiBold"/>
+
+                                <TextBox Width="60"
+                                     FontFamily="Consolas"
+                                     Text="{Binding QuietEnd,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,StringFormat=hh\\:mm}" />
+
+                            </StackPanel>
+                        </StackPanel>
+
+                    </StackPanel>
+
+                </StackPanel>
+
+            </ScrollViewer>
+        </Border>
+
+        <!-- FOOTER -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,18,0,0">
+
+            <Button Content="Cancel (Esc)"
+                    Width="100"
+                    Height="30"
+                    Margin="0,0,12,0"
+                    IsCancel="True"
+                    Click="Cancel_Click"
+                    Foreground="White"
+                    Background="#FFFF5757"
+                    FontFamily="Cooper Black"/>
+
+            <Button Content="Save (Enter)"
+                    Width="100"
+                    Height="30"
+                    IsDefault="True"
+                    Click="Save_Click"
+                    Background="#FFF15A21"
+                    Foreground="White"
+                    FontFamily="Cooper Black"/>
+        </StackPanel>
+
+    </Grid>
+</Window>

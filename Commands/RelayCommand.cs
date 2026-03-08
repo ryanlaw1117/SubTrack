@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Subscription_Manager.Commands
+namespace Subscription_Manager
 {
     public class RelayCommand : ICommand
     {
@@ -24,11 +24,10 @@ namespace Subscription_Manager.Commands
             _execute();
         }
 
-        public event EventHandler? CanExecuteChanged;
-
-        public void RaiseCanExecuteChanged()
+        public event EventHandler? CanExecuteChanged
         {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
         }
     }
 }

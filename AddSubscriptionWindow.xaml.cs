@@ -14,12 +14,17 @@ namespace Subscription_Manager
         private readonly ObservableCollection<Subscription> _subscriptions;
         private string? _selectedAccentColor;
         private readonly Subscription _subscription;
+        public AppSettings AppSettings { get; }
 
-        public AddSubscriptionWindow(ObservableCollection<Subscription> subscriptions)
+        public AddSubscriptionWindow(
+            ObservableCollection<Subscription> subscriptions,
+            AppSettings appSettings)
         {
             InitializeComponent();
 
             _subscriptions = subscriptions;
+            AppSettings = appSettings;
+
             _subscription = new Subscription();
             DataContext = _subscription;
         }
@@ -66,9 +71,12 @@ namespace Subscription_Manager
                 ? _subscription.AccentColor
                 : _selectedAccentColor;
 
-
             _subscriptions.Add(_subscription);
-            SubscriptionStorage.Save(_subscriptions);
+            _subscription.IsActive = true;
+            _subscription.NotificationsEnabled = AppSettings.NotificationsEnabled;
+
+            Subscription_Manager.SubscriptionStorage.Save(_subscriptions);
+
             Close();
         }
         protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -87,6 +95,22 @@ namespace Subscription_Manager
             base.OnPreviewKeyDown(e);
         }
 
+
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Add_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                Close();
+                e.Handled = true;
+            }
+
+            base.OnPreviewKeyDown(e);
+        }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
 

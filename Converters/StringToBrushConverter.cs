@@ -7,14 +7,15 @@ namespace Subscription_Manager.Converters
 {
     public class StringToBrushConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is not string s || string.IsNullOrWhiteSpace(s))
+            if (value is not string colorString || string.IsNullOrWhiteSpace(colorString))
                 return Brushes.Transparent;
 
             try
             {
-                return (SolidColorBrush)new BrushConverter().ConvertFromString(s)!;
+                var color = (Color)ColorConverter.ConvertFromString(colorString)!;
+                return new SolidColorBrush(color);
             }
             catch
             {
@@ -22,7 +23,12 @@ namespace Subscription_Manager.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => Binding.DoNothing;
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (value is SolidColorBrush brush)
+                return brush.Color.ToString();
+
+            return "#FFFFFF";
+        }
     }
 }
